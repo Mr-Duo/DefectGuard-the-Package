@@ -11,12 +11,9 @@ from .models import (
 )
 from .utils.utils import (
     sort_by_predict,
-    vsc_output,
-    check_threshold,
+    load_json
 )
-from .JITCrawler import BasicPipeline
 from .JITCrawler.core.Fetcher import Fetcher
-from argparse import Namespace
 
 def init_model(model_name, language, device):
     match model_name:
@@ -59,103 +56,41 @@ def inferencing(params):
 
     logger(user_input)
 
-    # User's input handling
-    # cfg = {
-    #     "mode": params.mode,
-    #     "repo_owner": params.repo_owner,
-    #     "repo_name": params.repo_name,
-    #     "repo_path": params.repo_path,
-    #     "repo_language": [params.repo_language],
-    #     "repo_save_path": f"{dg_cache_path}/save",
-    #     "extractor_save": True,
-    #     "extractor_reextract": params.reextract,
-    #     "create_dataset": False,
-    #     "num_commits_per_file": 5000,
-    # }
-
-    # if params.mode == "remote":
-    #     cfg["repo_clone_path"] = f"{dg_cache_path}/repo"
-    #     cfg["repo_clone_url"] = f"https://github.com/{params.repo_owner}/{params.repo_name}.git"
-    #     cfg["extractor_check_uncommit"] = False
-    # else:
-    #     cfg["extractor_check_uncommit"] = params.uncommit
-
-    # cfg = Namespace(**cfg)
-
-    # extract repo
     start_extract_time = time.time()
 
-    crawler = BasicPipeline(cfg)
-    # crawler.set_repo(cfg)
-    # crawler.run()
+    access_key = load_json(params.access_key)
+    fetcher = Fetcher(owner=params.repo_owner, repo=params.repo_name, access_token=access_key)
+    pull_requests = fetcher.get_pull_request_data(params.pull_numbers)
 
-    fetcher = Fetcher(owner=params.owner, repo=params.repo_name)
-    file_path = f'{params.access_key}/access_key.json'
-    try:
-        with open(file_path, 'r') as file:
-            access_key = json.load(file)
-    except FileNotFoundError:
-        logger(f"Error: The file {file_path} was not found.")
-    except json.JSONDecodeError:
-        logger(f"Error: The file {file_path} is not a valid JSON file.")
-    except Exception as e:
-        logger(f"An unexpected error occurred: {e}")
-
-    fetcher.set_access_token(access_key)
-    pull_requests = fetcher.get_pull_request_data(params.pull_request_numbers)
+    logger(pull_requests)
     
-    # commits, features, not_found_ids = crawler.repo.get_commits(params.commit_hash)
-    # logger(commits, features, not_found_ids)
-    # user_input["commit_hashes"] = [id for id in params.commit_hash if id not in not_found_ids]
-    # user_input["features"] = features
-    # user_input["commit_info"] = []
-    # for i in range(len(user_input["commit_hashes"])):
-    #     id, mes, cc2vec_commit, deepjit_commit, simcom_commit = crawler.processor.process_one_commit(commits[i])
-    #     user_input["commit_info"].append({
-    #         "id": id,
-    #         "message": mes,
-    #         "cc2vec": cc2vec_commit,
-    #         "deepjit": deepjit_commit,
-    #         "simcom": simcom_commit
-    #     })
-
     end_extract_time = time.time()
 
-    if len(pull_requests.keys()) > 0:
+    if len(pull_requests) > 0:
         # Load Model
         model_list = {}
         for model in params.models:
             model_list[model] = init_model(model, params.repo_language, params.device)
 
         # Inference
-        outputs = {"no_code_change_commit": not_found_ids}
+        outputs = {}
         for model in model_list.keys():
             start_inference_time = time.time()
 
             outputs[model] = (
-                sort_by_predict(model_list[model].handle(user_input))
+                sort_by_predict(model_list[model].handle(pull_requests))
                 if params.sort
-                else model_list[model].handle(user_input)
+                else model_list[model].handle(pull_requests)
             )
 
             end_inference_time = time.time()
 
-            logger(
-                f"Inference time of {model}: {end_inference_time - start_inference_time}"
-            )
-
-        if params.vsc:
-            outputs = vsc_output(outputs)
+            logger(f"Inference time of {model}: {end_inference_time - start_inference_time}")
 
         print(json.dumps(outputs, indent=2))
 
-        if not params.no_warning:
-            defect_outputs = check_threshold(outputs, params.threshold)
-            for model, commits in defect_outputs.items():
-                for commit in commits:
-                    raise Exception(
-                        f"{model}: commit {commit['commit_hash']} has {commit['predict']} chance of being defect. Please review it."
-                    )
+    else:
+        raise Exception("No pull request to inference. Please check if your pull requests contain any code change.")
 
     end_whole_process_time = time.time()
 

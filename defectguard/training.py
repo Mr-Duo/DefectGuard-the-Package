@@ -120,7 +120,7 @@ def training_deep_learning(params, dg_cache_path):
 
     for epoch in range(1, params.epochs + 1):
         total_loss = 0
-        for batch in code_dataloader:
+        for batch in tqdm(code_dataloader):
             # Extract data from DataLoader
             code = batch["code"].to(model.device)
             message = batch["message"].to(model.device)
@@ -171,7 +171,6 @@ def training_deep_learning(params, dg_cache_path):
                     break
         else:
             loss_score = total_loss.item()
-            print(loss_score < smallest_loss, loss_score, smallest_loss)
             if loss_score < smallest_loss:
                 smallest_loss = loss_score
                 print('Save a better model', smallest_loss)
