@@ -1,6 +1,6 @@
 from .Repository import Repository
 from .Dict import create_dict
-from .utils import save_pkl, split_sentence
+from .utils import *
 from defectguard.utils.logger import logger
 from datetime import datetime
 import time
@@ -164,7 +164,7 @@ class Processor:
             "_id": [], "date": [], "file_name": [], "added_code": [], "removed_code": [], "deepjit": [], "simcom": [], "bug": []
         }
         self.change_features = {
-            "_id": [], "date": [], "file_name": [], "la": [], "ld": [], "lt": [], "bug": []
+            "_id": [], "date": [], "file_name": [], "la": [], "ld": [], "lt": [], "nd": [], "nuc": [], "exp": [], "rexp": [],"bug": []
         }
 
         df_ids = self.df["_id"].values
@@ -272,8 +272,14 @@ class Processor:
                 "file_name": file,
                 "la": 0, 
                 "ld": 0,
-                "lt": 0
+                "lt": 0,
+                'nd': 0,
+                'nuc': 0,
+                'exp': 0,
+                'rexp': 0
             }
+
+            subsystem, directory, filename = get_subs_dire_name(file)
 
             change_feature["lt"] = commit["diff"][file]["meta_a"]["lines"]
             for hunk in commit["diff"][file]["content"]:
