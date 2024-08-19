@@ -5,6 +5,8 @@ from tqdm import tqdm
 import numpy as np
 import pandas as pd
 import datetime
+from multiprocessing import Manager
+import concurrent.futures as cf
 
 class Extractor:
     def __init__(
@@ -16,6 +18,7 @@ class Extractor:
         save: bool = True,
         force_reextract: bool = False,
         check_uncommit:bool=False,
+        workers:int = 1,
     ):
         self.start = start
         self.end = end
@@ -26,6 +29,7 @@ class Extractor:
         self.save = save
         self.force_reextract = force_reextract
         self.check_uncommit = check_uncommit
+        self.workers = workers
 
     def set_repo(self, repo: Repository):
         self.repo = repo
@@ -188,6 +192,28 @@ class Extractor:
         }
         return commit
 
+    def parallel_extract(self, extracting_ids, core):
+        extracted = []
+        bug_fix_ids = []
+        ids = {}
+        num_file = 0
+        for commit_id in tqdm(extracting_ids):
+            try:
+                commit = self.extract_one_commit_diff(commit_id, self.language)
+                if not commit["diff"]:
+                    ids[commit_id] = -2
+                    continue
+                extracted.append(commit)
+                ids[commit_id] = core
+                if check_fix(commit["message"]):
+                    bug_fix_ids.append(commit_id)
+            except Exception:
+                ids[commit_id] = -3
+            if len(extracted) % self.num_commits_per_file == 0 and self.save:
+                save_jsonl(extracted, self.repo.get_commits_path(f"core_{core}_{num_file}"))
+                num_file += 1
+        return extracted, bug_fix_ids, ids
+
     def extract_repo_commit_diffs(self):
         print("Collecting commits information ...")
         if not self.num_commits_per_file:
@@ -199,25 +225,23 @@ class Extractor:
         if self.last_file_num_commits > 0:
             self.repo.load_commits(self.num_files)
 
-        for commit_id in tqdm(extracting_ids):
-            try:
-                commit = self.extract_one_commit_diff(commit_id, self.language)
-                if not commit["diff"]:
-                    self.repo.ids[commit_id] = -2
-                    continue
-                self.repo.commits[commit_id] = commit
-                self.repo.ids[commit_id] = self.num_files
-                self.last_file_num_commits += 1
-                if check_fix(commit["message"]):
-                    bug_fix_ids.append(commit_id)
-            except Exception:
-                self.repo.ids[commit_id] = -3
+        tot = len(extracting_ids)
+        sublist_length = tot // self.workers
+        if sublist_length == 0:
+            sublists = [extracting_ids]
+        else:
+            sublists = [extracting_ids[i:i + sublist_length] for i in range(0, tot, sublist_length)]
 
-            if self.last_file_num_commits == self.num_commits_per_file and self.save:
-                self.repo.save_commits(self.num_files)
-                self.last_file_num_commits = 0
-                self.num_files += 1
-                self.repo.commits = {}
+        manager = Manager()
+        futures = []
+        with cf.ProcessPoolExecutor(self.workers) as pp:
+            for worker in range(min(self.workers, len(sublists))):
+                futures.append(pp.submit(self.parallel_extract, sublists[worker], worker))
+        for future in cf.as_completed(futures):
+            result = future.result()
+            self.repo.commits.extend(result[0])
+            bug_fix_ids.extend(result[1])
+            self.repo.ids.update(result[2])
 
         if self.check_uncommit:
             uncommit = self.extract_repo_uncommit()
@@ -226,7 +250,7 @@ class Extractor:
 
         if self.save:
             if self.repo.commits:
-                self.repo.save_commits(self.num_files)
+                self.repo.save_commits("all")
             self.repo.save_bug_fix(bug_fix_ids)
             self.repo.save_ids()
 
@@ -313,18 +337,11 @@ class Extractor:
         print("Extracting features ...")
         self.repo.files = {}
         self.repo.authors = {}
-        self.repo.features = {}
 
-        num_file = (
-            self.num_files if self.last_file_num_commits == 0 else self.num_files + 1
-        )
-        for num in range(num_file):
-            self.repo.load_commits(num)
-            for commit_id in tqdm(self.repo.commits):
-                commit_feature = self.extract_one_commit_features(
-                    self.repo.commits[commit_id]
-                )
-                self.repo.features[commit_id] = commit_feature
+        self.repo.load_commits("all")
+        for commit in tqdm(self.repo.commits):
+            commit_feature = self.extract_one_commit_features(commit)
+            self.repo.features.append(commit_feature)
         if self.check_uncommit:
             if self.repo.uncommit and self.repo.uncommit["commit"]:
                 commit_feature = self.extract_one_commit_features(
@@ -333,8 +350,8 @@ class Extractor:
                 self.repo.uncommit["feature"] = commit_feature
         if self.save:
             self.repo.save_features()
-        self.repo.files = {}
-        self.repo.authors = {}
+        # self.repo.files = {}
+        # self.repo.authors = {}
 
     def extract_repo_uncommit(self):
         command = "git config --get user.name"

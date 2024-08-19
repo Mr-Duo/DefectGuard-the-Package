@@ -3,6 +3,7 @@ import json
 import logging as log
 import os
 from time import time as ts
+from typing import List
 
 import dateparser
 import yaml
@@ -22,19 +23,43 @@ from szz.common.issue_date import parse_issue_date
 from pathlib import Path
 import random
 from multiprocessing import Manager
+import concurrent.futures as cf
 
-def main(input_json: str, out_json: str, conf: Dict, repos_dir: str, id: int = 0):    
+def create_log_handler(core_id: int):
+    # Construct the log filename based on the core ID
+    log_filename = f'log/logs_core_{core_id}.log'
+    
+    # Create a logger with the core-specific name
+    logger = log.getLogger(name=f'core_{core_id}')
+    logger.setLevel(log.INFO)  # Set the logging level to INFO
+    
+    # Create a file handler for logging
+    fileHandler = log.FileHandler(log_filename)
+    fileHandler.setLevel(log.INFO)  # Set the handler level to INFO
+
+    # Define the log message format
+    formatter = log.Formatter('%(asctime)s :: %(funcName)s - %(levelname)s :: %(message)s')
+    fileHandler.setFormatter(formatter)
+
+    # Add the handler to the logger
+    logger.addHandler(fileHandler)
+
+    # Set specific logging levels for other modules, if needed
+    log.getLogger('pydriller').setLevel(log.WARNING)
+
+    # Log the initialization message
+    logger.info(f'Logging initialized for core {core_id}')
+
+    return logger
+
+def main(input_json: str, out_json: str, conf: Dict, repos_dir: str, id: int = 0):   
+    logger = create_log_handler(id)  # Initialize logging for each core 
     with open(input_json, 'r') as in_file:
         bugfix_commits = json.loads(in_file.read())
     tot = len(bugfix_commits)
 
-    # if os.path.exists(out_json):
-    #     out_json = out_json.replace('.json', f'.{random.randint(1, 99)}.json')
     with open(out_json, 'w') as out:
         json.dump(bugfix_commits, out, indent=4)
-
-    log.basicConfig(filename= f'log/{input_json}_{id}.log',level=log.INFO, format='%(asctime)s :: %(funcName)s - %(levelname)s :: %(message)s')
-    log.getLogger('pydriller').setLevel(log.WARNING)
 
     for i, commit in enumerate(bugfix_commits):
         bug_inducing_commits = set()
@@ -142,19 +167,31 @@ def main(input_json: str, out_json: str, conf: Dict, repos_dir: str, id: int = 0
     log.info(f"results saved in {out_json}")
     log.info("+++ DONE +++")
 
-def split_json(input_json: str, input_name: str, num_core: int = 1):
+def split_json(input_json: str, input_name: str, temp_dir: str, num_core: int = 1):
     with open(input_json, 'r') as in_file:
         bugfix_commits = json.loads(in_file.read())
     tot = len(bugfix_commits)
     sublist_length = tot // num_core
-
-    sublists = [bugfix_commits[i:i + sublist_length] for i in range(0, tot, sublist_length)]
+    if sublist_length == 0:
+        sublists = [bugfix_commits]
+    else:
+        sublists = [bugfix_commits[i:i + sublist_length] for i in range(0, tot, sublist_length)]
     out_file = []
     for id in range(num_core):
-        out_file.append(f'temp/{input_name}_{id}.json')
+        out_file.append(f'{temp_dir}/{input_name}_{id}.json')
         with open(out_file[id], 'w') as out:
             json.dump(sublists[id], out, indent=4)
     return out_file
+
+def merge_json(output_jsons: List[int], output_name: str, out_dir: str, num_core: int = 1):
+    output = []
+    for i in range(num_core):
+        with open(output_jsons[i], 'r') as f:
+            out = json.load(f)
+        output.extend(out)
+    with open(f'{out_dir}/{output_name}', "w") as f:
+        json.dump(output, f, indent=4)
+    return output
 
 if __name__ == "__main__":
     check_requirements()
@@ -183,10 +220,14 @@ if __name__ == "__main__":
     out_dir = 'out'
     if not os.path.isdir(out_dir):
         os.makedirs(out_dir)
-    conf_file_name = Path(args.conf_file).name.split('.')[0]
 
-    input_json = split_json(args.input_json, input_name, args.num_core)
-    out_json = [os.path.join(out_dir, f'bic_{conf_file_name}_{input_name}_{id}.json') for id in range(args.num_core)]
+    temp_dir = 'temp'
+    if not os.path.isdir(temp_dir):
+        os.makedirs(temp_dir)
+
+    conf_file_name = Path(args.conf_file).name.split('.')[0]
+    input_jsons = split_json(args.input_json, input_name, temp_dir, args.num_core)
+    output_jsons = [os.path.join(temp_dir, f'bic_{conf_file_name}_{input_name}_{id}.json') for id in range(args.num_core)]
 
     if not szz_name:
         log.error('The configuration file does not define the SZZ name. Please, fix.')
@@ -195,10 +236,11 @@ if __name__ == "__main__":
     log.info(f'Launching {szz_name}-szz')
 
     manager = Manager()
-    import concurrent.futures as cf
     futures = []
     with cf.ProcessPoolExecutor(args.num_core) as pp:
         for id in range(args.num_core):
-            futures.append(pp.submit(main, input_json[id], out_json[id], conf, args.repos_dir))
+            futures.append(pp.submit(main, input_jsons[id], output_jsons[id], conf, args.repos_dir))
     for future in cf.as_completed(futures):
          future.result()
+
+    output = merge_json(output_jsons, f'bic_{conf_file_name}_{input_name}.json', out_dir, args.num_core)

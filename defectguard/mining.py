@@ -32,6 +32,8 @@ def mining(params):
         "dataset_save_path": f"{dg_cache_path}/dataset",
         "processor_save": True,
         "num_commits_per_file": 5000,
+        "szz": params.szz,
+        "workers": params.workers
     }
 
     if params.mode == "remote":

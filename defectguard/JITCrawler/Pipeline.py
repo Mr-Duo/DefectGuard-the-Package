@@ -13,15 +13,18 @@ class BasicPipeline:
             save=cfg.extractor_save,
             check_uncommit=cfg.extractor_check_uncommit,
             force_reextract=cfg.extractor_reextract,
+            workers=cfg.workers,
         )
-
+        self.szz = cfg.szz
+        self.workers = cfg.workers
         if cfg.create_dataset:
             self.create_dataset = True
             # init pyszz
             self.pyszz = PySZZ(
                 pyszz_path=cfg.pyszz_path,
                 keep_output=20,
-                pyszz_conf="vszz",
+                pyszz_conf=cfg.szz,
+                workers=self.workers,
             )
 
             # init processor
@@ -81,7 +84,7 @@ class BasicPipeline:
             # run pyszz
             self.pyszz.run(
                 bug_fix_path=self.repo.get_bug_fix_path(),
-                szz_conf_path=self.repo.get_pyszz_conf_path(),
+                szz_conf_path=self.repo.get_pyszz_conf_path(self.szz),
                 repo_path=self.repo.get_repo_path(),
                 repo_language=self.repo.get_language(),
             )

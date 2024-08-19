@@ -182,5 +182,6 @@ modules.xml
 # End of https://www.toptal.com/developers/gitignore/api/pycharm+all,code,intellij+all
 
 temp/
+log/
 __pycache__
 _szztemp

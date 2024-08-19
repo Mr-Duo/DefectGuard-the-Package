@@ -44,6 +44,8 @@ def main(args=None):
     mining_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
     mining_parser.set_defaults(func=mining)
     mining_parser.add_argument("-pyszz_path", type=str, default="", help="Path to pyszz")
+    mining_parser.add_argument("-szz", type=str, choices=["bszz", "vszz"], default= "bszz", help="Variant of Szz Algorithm")
+    mining_parser.add_argument("-workers", type=int, default=1, help="Number of parallel workers")
 
     inferencing_parser = argparse.ArgumentParser(parents=[common_parser], add_help=False)
     inferencing_parser.set_defaults(func=inferencing)

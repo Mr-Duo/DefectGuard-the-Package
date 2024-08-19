@@ -11,6 +11,7 @@ class PySZZ:
         # log_path: str = "log",
         pyszz_conf: str = "bszz",
         keep_output: int = 50,
+        workers: int = 1,
     ):
         """
         Wrapper for PySZZ from https://github.com/grosa1/pyszz_v2
@@ -22,6 +23,7 @@ class PySZZ:
         # self.log_path = os.path.abspath(log_path)
         self.set_conf(pyszz_conf)
         self.keep_output = keep_output
+        self.workers = workers
 
     def set_conf(self, conf="bszz"):
         valid_conf = list(
@@ -53,8 +55,9 @@ class PySZZ:
             yaml.dump(conf, f)
 
         # run pyszz
-        cmd = "python3 main.py {} {} {}".format(bug_fix_path, szz_conf_path, repo_path)
+        cmd = "python3 main.py {} {} {} {}".format(bug_fix_path, szz_conf_path, repo_path, self.workers)
         out = exec_cmd(cmd)
+        # print(cmd)
         ## debug
         # print(out)
         

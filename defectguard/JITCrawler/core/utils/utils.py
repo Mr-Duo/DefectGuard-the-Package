@@ -198,6 +198,14 @@ def check_fix(msg):
     else:
         return 0
 
+# def check_fix(msg):
+#     # List of keywords indicating bug fixes
+#     bug_keywords = ["fix", "bug", "issue"]
+#     wrong_keywords = ["fix typo", "fix build", "non-fix"]
+#     if any(keyword in msg for keyword in bug_keywords):
+#         if not any(keyword in msg for keyword in wrong_keywords):
+#             return 1
+#     return 0
 
 def get_prev_time(blame, file):
     if not file in blame:
@@ -295,6 +303,14 @@ def load_json(path):
         data = json.load(f)
     return data
 
+def load_jsonl(path):
+    if not os.path.exists(path):
+        return []
+    data = []
+    with open(path, 'r') as f:
+        for line in f:
+            data.append(json.loads(line))
+    return data
 
 def save_pkl(data, path):
     with open(path, "wb") as f:
@@ -305,6 +321,10 @@ def save_json(data, path):
     with open(path, "w") as f:
         json.dump(data, f, indent=4)
 
+def save_jsonl(data, path, mode="w"):
+    with open(path, mode) as f:
+        for d in data:
+            f.write(json.dumps(d) + '\n')
 
 def split_sentence(sentence):
     sentence = (

@@ -6,4 +6,6 @@ defectguard mining \
     -repo_name FFmpeg \
     -repo_path input/ \
     -repo_language C \
-    -pyszz_path pyszz_v2
+    -pyszz_path pyszz_v2 \
+    -workers 3 \
+    -szz vszz
