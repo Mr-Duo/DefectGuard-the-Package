@@ -14,7 +14,6 @@ from sklearn.linear_model import LogisticRegression as sk_LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from imblearn.under_sampling import RandomUnderSampler
 from .utils.padding import padding_data
-from .utils.utils import load_data
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score, precision_recall_curve, auc
 import numpy as np
