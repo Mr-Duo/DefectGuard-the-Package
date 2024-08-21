@@ -14,6 +14,7 @@ from sklearn.linear_model import LogisticRegression as sk_LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from imblearn.under_sampling import RandomUnderSampler
 from .utils.padding import padding_data
+from .utils.utils import load_data
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score, precision_recall_curve, auc
 import numpy as np
@@ -46,35 +47,33 @@ def init_model(model_name, language, device):
             raise Exception("No such model")
 
 class CustomDataset(Dataset):
-    def __init__(self, ids, code, message, labels):
-        self.ids = ids
-        self.code = code
-        self.message = message
-        self.labels = labels
+    def __init__(self, data):
+        self.data = data
     
     def __len__(self):
-        return len(self.code)
+        return len(self.data)
     
     def __getitem__(self, idx):
-        commit_hash = self.ids[idx]
-        labels = torch.tensor(self.labels[idx], dtype=torch.float32)
-        code = self.code[idx]
-        message = self.message[idx]
-        code = torch.tensor(code)
-        message = torch.tensor(message)
+        # commit_hash = self.ids[idx]
+        # labels = torch.tensor(self.labels[idx], dtype=torch.float32)
+        # code = self.code[idx]
+        # message = self.message[idx]
+        # code = torch.tensor(code)
+        # message = torch.tensor(message)
 
-        return {
-            'commit_hash': commit_hash,
-            'code': code,
-            'message': message,
-            'labels': labels
-        }
+        return self.data[idx]
+
+def process_data(file):
+    data = []
+    with open(file, "r") as f:
+        for line in f:
+            data.append(json.dumps(line))
     
 def training_deep_learning(params, dg_cache_path):
     commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
-    dictionary_path = f'{commit_path}/{params.repo_name}_train_dict.pkl' if params.dictionary is None else params.dictionary
-    train_set_path = f'{commit_path}/{params.model}_{params.repo_name}_train.pkl' if params.commit_train_set is None else params.commit_train_set
-    val_set_path = f'{commit_path}/{params.model}_{params.repo_name}_val.pkl' if params.commit_val_set is None else params.commit_val_set
+    dictionary_path = f'{commit_path}/{params.repo_name}_train_dict.json' if params.dictionary is None else params.dictionary
+    train_set_path = f'{commit_path}/{params.model}_{params.repo_name}_train.jsonl' if params.commit_train_set is None else params.commit_train_set
+    val_set_path = f'{commit_path}/{params.model}_{params.repo_name}_val.jsonl' if params.commit_val_set is None else params.commit_val_set
     model_save_path = f'{dg_cache_path}/save/{params.repo_name}'
 
     # Init model
@@ -85,17 +84,23 @@ def training_deep_learning(params, dg_cache_path):
         model.initialize(dictionary=dictionary_path)
 
     # Load dataset
-    loaded_data = pickle.load(open(train_set_path, 'rb'))
-    ids, messages, commits, labels = loaded_data
+    trained_data = load_data(train_set_path)
+    ids = trained_data["commit_id"]
+    messages = trained_data["message"]
+    codes = trained_data["code_change"]
+    labels = trained_data["label"]
 
     if params.model == "simcom":
-        val_data = pickle.load(open(val_set_path, 'rb'))
-        val_ids, val_messages, val_codes, val_labels = val_data
+        val_data = load_data(train_set_path)
+        val_ids = val_data["commit_id"]
+        val_messages = val_data["message"]
+        val_codes = val_data["code_change"]
+        val_labels = val_data["label"]
 
     dict_msg, dict_code = model.message_dictionary, model.code_dictionary
 
     pad_msg = padding_data(data=messages, dictionary=dict_msg, params=model.hyperparameters, type='msg')        
-    pad_code = padding_data(data=commits, dictionary=dict_code, params=model.hyperparameters, type='code')
+    pad_code = padding_data(data=codes, dictionary=dict_code, params=model.hyperparameters, type='code')
 
     if params.model == "simcom":
         val_pad_msg = padding_data(data=val_messages, dictionary=dict_msg, params=model.hyperparameters, type='msg')        

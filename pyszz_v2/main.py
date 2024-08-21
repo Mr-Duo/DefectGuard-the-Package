@@ -1,7 +1,7 @@
 import argparse
 import json
 import logging as log
-import os
+import os, shutil
 from time import time as ts
 from typing import List
 
@@ -57,9 +57,6 @@ def main(input_json: str, out_json: str, conf: Dict, repos_dir: str, id: int = 0
     with open(input_json, 'r') as in_file:
         bugfix_commits = json.loads(in_file.read())
     tot = len(bugfix_commits)
-
-    with open(out_json, 'w') as out:
-        json.dump(bugfix_commits, out, indent=4)
 
     for i, commit in enumerate(bugfix_commits):
         bug_inducing_commits = set()
@@ -133,9 +130,9 @@ def main(input_json: str, out_json: str, conf: Dict, repos_dir: str, id: int = 0
             pd_szz = PyDrillerSZZ(repo_full_name=repo_name, repo_url=repo_url, repos_dir=repos_dir)
             imp_files = pd_szz.get_impacted_files(fix_commit_hash=fix_commit, file_ext_to_parse=conf.get('file_ext_to_parse'), only_deleted_lines=True)
             bug_inducing_commits = pd_szz.find_bic(fix_commit_hash=fix_commit,
-                                                   impacted_files=imp_files,
-                                                   issue_date_filter=conf.get('issue_date_filter'),
-                                                   issue_date=issue_date)
+                                                impacted_files=imp_files,
+                                                issue_date_filter=conf.get('issue_date_filter'),
+                                                issue_date=issue_date)
         elif szz_name == 'a':
             a_szz = ASZZ(repo_full_name=repo_name, repo_url=repo_url, repos_dir=repos_dir)
             bug_inducing_commits = a_szz.start(fix_commit_hash=fix_commit, commit_issue_date=issue_date, **conf)
@@ -161,8 +158,9 @@ def main(input_json: str, out_json: str, conf: Dict, repos_dir: str, id: int = 0
             bugfix_commits[i]["inducing_commit_hash"] = [bic for bic in bug_inducing_commits if bic]
         else:
             bugfix_commits[i]["inducing_commit_hash"] = [bic.hexsha for bic in bug_inducing_commits if bic]
-        with open(out_json, 'w') as out:
-            json.dump(bugfix_commits, out, indent=4)
+        
+        with open(out_json, 'a') as out: 
+            out.write(json.dumps(commit) + '\n')
 
     log.info(f"results saved in {out_json}")
     log.info("+++ DONE +++")
@@ -187,10 +185,11 @@ def merge_json(output_jsons: List[int], output_name: str, out_dir: str, num_core
     output = []
     for i in range(num_core):
         with open(output_jsons[i], 'r') as f:
-            out = json.load(f)
-        output.extend(out)
+            for line in f:
+                output.append(json.loads(line))
     with open(f'{out_dir}/{output_name}', "w") as f:
-        json.dump(output, f, indent=4)
+        for line in output:
+            f.write(json.dumps(line) + '\n')
     return output
 
 if __name__ == "__main__":
@@ -216,6 +215,7 @@ if __name__ == "__main__":
     log.info(f"parsed conf yml '{args.conf_file}': {conf}")
     szz_name = conf['szz_name']
     input_name = args.input_json.rsplit('/', 1)[-1].split('.')[0]
+    repo_name = args.input_json.rsplit('/', 2)[-2]
 
     out_dir = 'out'
     if not os.path.isdir(out_dir):
@@ -227,7 +227,7 @@ if __name__ == "__main__":
 
     conf_file_name = Path(args.conf_file).name.split('.')[0]
     input_jsons = split_json(args.input_json, input_name, temp_dir, args.num_core)
-    output_jsons = [os.path.join(temp_dir, f'bic_{conf_file_name}_{input_name}_{id}.json') for id in range(args.num_core)]
+    output_jsons = [os.path.join(temp_dir, f'bic_{conf_file_name}_{input_name}_{id}.jsonl') for id in range(args.num_core)]
 
     if not szz_name:
         log.error('The configuration file does not define the SZZ name. Please, fix.')
@@ -243,4 +243,5 @@ if __name__ == "__main__":
     for future in cf.as_completed(futures):
          future.result()
 
-    output = merge_json(output_jsons, f'bic_{conf_file_name}_{input_name}.json', out_dir, args.num_core)
+    output = merge_json(output_jsons, f'bic_{szz_name}szz_{repo_name}.jsonl', out_dir, args.num_core)
+    shutil.rmtree(temp_dir)

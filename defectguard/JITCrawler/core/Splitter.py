@@ -1,6 +1,6 @@
 from .Processor import Processor
 from .Dict import create_dict
-from .utils import save_pkl
+from .utils import save_pkl, save_json, save_jsonl
 import numpy as np
 import os
 
@@ -88,19 +88,30 @@ class Splitter:
             labels = self.get_values(self.processor.labels, indexes[key])
             if key == "train":
                 train_dict = create_dict(messages, deepjit_codes)
-                save_pkl(
+                save_json(
                     train_dict,
-                    os.path.join(self.processor.commit_path, f"{save_part}_dict.pkl"),
+                    os.path.join(self.processor.commit_path, f"{save_part}_dict.json"),
                 )
-            save_pkl(
-                [ids, messages, cc2vec_codes, labels],
-                os.path.join(self.processor.commit_path, f"cc2vec_{save_part}.pkl"),
-            )
-            save_pkl(
-                [ids, messages, deepjit_codes, labels],
-                os.path.join(self.processor.commit_path, f"deepjit_{save_part}.pkl"),
-            )
-            save_pkl(
-                [ids, messages, simcom_codes, labels],
-                os.path.join(self.processor.commit_path, f"simcom_{save_part}.pkl"),
-            )
+            cc2vec_dict = [{
+                "commit_id": ids[i],
+                "messages": messages[i],
+                "code_change": cc2vec_codes[i],
+                "label": labels[i]
+            } for i in range(len(ids))]
+            save_jsonl(cc2vec_dict, os.path.join(self.processor.commit_path, f"cc2vec_{save_part}.jsonl"))
+            
+            deepjit_dict = [{
+                "commit_id": ids[i],
+                "messages": messages[i],
+                "code_change": deepjit_codes[i],
+                "label": labels[i]
+            } for i in range(len(ids))]
+            save_jsonl(deepjit_dict, os.path.join(self.processor.commit_path, f"deepjit_{save_part}.jsonl"))
+
+            simcom_dict = [{
+                "commit_id": ids[i],
+                "messages": messages[i],
+                "code_change": simcom_codes[i],
+                "label": labels[i]
+            } for i in range(len(ids))]
+            save_jsonl(simcom_dict, os.path.join(self.processor.commit_path, f"simcom_{save_part}.jsonl"))

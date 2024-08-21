@@ -44,8 +44,6 @@ class Extractor:
     def load_config(self, config):
         keys = [
             "num_commits_per_file",
-            "last_file_num_commits",
-            "num_files",
             "language",
         ]
         if config:
@@ -64,7 +62,6 @@ class Extractor:
         config = {
             "date": self.date,
             "num_commits_per_file": self.num_commits_per_file,
-            "last_file_num_commits": self.last_file_num_commits,
             "num_files": self.num_files,
             "language": self.language,
         }
@@ -84,8 +81,6 @@ class Extractor:
             self.repo.uncommit = {}
         self.extract_repo_commit_diffs()
         self.extract_repo_commits_features()
-        if self.save:
-            self.save_config()
         os.chdir(cur_dir)
 
     def extract_repo_commit_ids(self):
@@ -197,6 +192,7 @@ class Extractor:
         bug_fix_ids = []
         ids = {}
         num_file = 0
+        num_core_file = len(extracting_ids) // self.num_commits_per_file
         for commit_id in tqdm(extracting_ids):
             try:
                 commit = self.extract_one_commit_diff(commit_id, self.language)
@@ -209,34 +205,36 @@ class Extractor:
                     bug_fix_ids.append(commit_id)
             except Exception:
                 ids[commit_id] = -3
-            if len(extracted) % self.num_commits_per_file == 0 and self.save:
-                save_jsonl(extracted, self.repo.get_commits_path(f"core_{core}_{num_file}"))
+            if len(extracted) == self.num_commits_per_file and self.save:
+                save_jsonl(extracted, self.repo.get_commits_path(f"{num_core_file * core + num_file}"))
+                extracted = []
                 num_file += 1
+        
+        if self.save:
+            if extracted:
+                save_jsonl(extracted, self.repo.get_commits_path(f"{num_core_file * core + num_file}"))
         return extracted, bug_fix_ids, ids
 
     def extract_repo_commit_diffs(self):
         print("Collecting commits information ...")
-        if not self.num_commits_per_file:
-            self.num_commits_per_file = len(self.repo.ids)
         extracting_ids = [id for id in self.repo.ids if self.repo.ids[id] == -1]
         if len(extracting_ids) == 0:
             return
-        bug_fix_ids = []
-        if self.last_file_num_commits > 0:
-            self.repo.load_commits(self.num_files)
 
-        tot = len(extracting_ids)
-        sublist_length = tot // self.workers
-        if sublist_length == 0:
-            sublists = [extracting_ids]
-        else:
-            sublists = [extracting_ids[i:i + sublist_length] for i in range(0, tot, sublist_length)]
+        total = len(extracting_ids)
+        sublist_length = total // self.workers
+        sublists = [extracting_ids] if sublist_length == 0 else [extracting_ids[i:i + sublist_length] for i in range(0, total, sublist_length)]
+        num_workers = min(self.workers, len(sublists))
+        self.num_commits_per_file = min(self.num_commits_per_file, total) if sublist_length == 0 else min(self.num_commits_per_file, sublist_length)
+        self.num_files = 1 if sublist_length == 0 else int(num_workers * (sublist_length // self.num_commits_per_file))
 
         manager = Manager()
         futures = []
         with cf.ProcessPoolExecutor(self.workers) as pp:
-            for worker in range(min(self.workers, len(sublists))):
+            for worker in range(num_workers):
                 futures.append(pp.submit(self.parallel_extract, sublists[worker], worker))
+
+        bug_fix_ids = []
         for future in cf.as_completed(futures):
             result = future.result()
             self.repo.commits.extend(result[0])
@@ -249,10 +247,8 @@ class Extractor:
                 self.repo.uncommit["commit"] = uncommit
 
         if self.save:
-            if self.repo.commits:
-                self.repo.save_commits("all")
             self.repo.save_bug_fix(bug_fix_ids)
-            self.repo.save_ids()
+            self.save_config()
 
     def extract_one_commit_features(self, commit):
         commit_id = commit["commit_id"]
@@ -337,8 +333,13 @@ class Extractor:
         print("Extracting features ...")
         self.repo.files = {}
         self.repo.authors = {}
+        self.repo.commits = []
+        
+        for i in range(self.num_files):
+            self.repo.commits.extend(load_jsonl(self.repo.get_commits_path(i)))
+        if len(self.repo.commits) == 0:
+            return
 
-        self.repo.load_commits("all")
         for commit in tqdm(self.repo.commits):
             commit_feature = self.extract_one_commit_features(commit)
             self.repo.features.append(commit_feature)

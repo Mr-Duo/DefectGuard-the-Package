@@ -21,9 +21,9 @@ class Repository:
         --save_path
         |   --repo_name
         |   |   --extracted_info.json
-        |   |   --commit_ids.pkl
-        |   |   --repo_commits_<num>.pkl
-        |   |   --repo_features.csv
+        |   |   --commit_ids.json
+        |   |   --repo_commits_<num>.jsonl
+        |   |   --repo_features.jsonl
         |   |   --repo_bug_fix.json
         |   |   --bszz.yml
         """
@@ -94,7 +94,7 @@ class Repository:
         return self.paths["pyszz_conf"].format(conf)
 
     def get_path(self):
-        return os.path.join(self.repo_path, self.owner, self.name)
+        return os.path.join(self.repo_path, self.name)
 
     def get_bug_fix_path(self):
         return self.paths["bug_fix"]
@@ -106,7 +106,7 @@ class Repository:
         return self.language
 
     def get_save_path(self):
-        return os.path.join(self.save_path, self.owner, self.name)
+        return os.path.join(self.save_path, self.name)
 
     # save
     def save_ids(self):
@@ -125,7 +125,7 @@ class Repository:
                 bug_fix.append(
                     {
                         "fix_commit_hash": id,
-                        "repo_name": os.path.join(self.owner, self.name),
+                        "repo_name": self.name,
                     }
                 )
         save_json(bug_fix, self.paths["bug_fix"])

@@ -1,7 +1,8 @@
 from .Repository import Repository
 from .Dict import create_dict
-from .utils import save_pkl, split_sentence
+from .utils import save_pkl, split_sentence, save_json, save_jsonl
 from datetime import datetime
+from operator import itemgetter
 import time
 import pandas as pd
 import numpy as np
@@ -65,9 +66,8 @@ class Processor:
         szz_bug_ids = {}
         if szz_output:
             repo_name = szz_output[0]["repo_name"]
-            assert repo_name == os.path.join(
-                self.repo.owner, self.repo.name
-            ), f"Unmatch szz output vs repo's info: got {repo_name} and {self.repo.owner}/{self.repo.name}"
+            assert repo_name == self.repo.name 
+            f"Unmatch szz output vs repo's info: got {repo_name} and {self.repo.name}"
             for out in szz_output:
                 if out["inducing_commit_hash"]:
                     for id in out["inducing_commit_hash"]:
@@ -80,13 +80,9 @@ class Processor:
         """
         Convert features to dataframe, and add bug label
         """
+        self.repo.load_features()        
+        self.repo.features = sorted(self.repo.features, key=itemgetter('date'))
 
-        def is_sorted_by_date(features):
-            dates = [features[id]["date"] for id in features]
-            return dates == sorted(dates)
-
-        self.repo.load_features()
-        assert is_sorted_by_date(self.repo.features), "Features are not sorted by date"
         if not cols:
             cols = [
                 "_id",
@@ -108,13 +104,12 @@ class Processor:
                 "sexp",
             ]
         data = {key: [] for key in cols}
-        for commit_id in self.repo.features:
-            feature = self.repo.features[commit_id]
+        for feature in self.repo.features:
             if time_upper_limit and feature["date"] > time_upper_limit:
                 continue
             for key in cols:
                 if key == "bug":
-                    data[key].append(1 if commit_id in bug_ids else 0)
+                    data[key].append(1 if feature["_id"] in bug_ids else 0)
                 else:
                     data[key].append(feature[key])
         self.repo.features = {}
@@ -141,11 +136,7 @@ class Processor:
         Process diffs to get format [ids, messages, codes, and labels]
         """
         cfg = self.repo.get_last_config()
-        num_files = (
-            cfg["num_files"]
-            if cfg["last_file_num_commits"] == 0
-            else cfg["num_files"] + 1
-        )
+        num_files = cfg["num_files"]
 
         self.ids = []
         self.messages = []
@@ -158,10 +149,9 @@ class Processor:
 
         for i in range(num_files):
             self.repo.load_commits(i)
-            for commit_id in self.repo.commits:
-                if commit_id not in df_ids:
+            for commit in self.repo.commits:
+                if commit["commit_id"] not in df_ids:
                     continue
-                commit = self.repo.commits[commit_id]
                 (
                     id,
                     mes,
@@ -226,16 +216,28 @@ class Processor:
             index=False,
         )
         code_msg_dict = create_dict(self.messages, self.deepjit_codes)
-        save_pkl(code_msg_dict, os.path.join(self.commit_path, "dict.pkl"))
-        save_pkl(
-            [self.ids, self.messages, self.cc2vec_codes, self.labels],
-            os.path.join(self.commit_path, "cc2vec.pkl"),
-        )
-        save_pkl(
-            [self.ids, self.messages, self.deepjit_codes, self.labels],
-            os.path.join(self.commit_path, "deepjit.pkl"),
-        )
-        save_pkl(
-            [self.ids, self.messages, self.simcom_codes, self.labels],
-            os.path.join(self.commit_path, "simcom.pkl"),
-        )
+        save_json(code_msg_dict, os.path.join(self.commit_path, "dict.json"))
+
+        cc2vec_dict = [{
+            "commit_id": self.ids[i],
+            "messages": self.messages[i],
+            "code_change": self.cc2vec_codes[i],
+            "label": self.labels[i]
+        } for i in range(len(self.ids))]
+        save_jsonl(cc2vec_dict, os.path.join(self.commit_path, "cc2vec.jsonl"))
+        
+        deepjit_dict = [{
+            "commit_id": self.ids[i],
+            "messages": self.messages[i],
+            "code_change": self.deepjit_codes[i],
+            "label": self.labels[i]
+        } for i in range(len(self.ids))]
+        save_jsonl(deepjit_dict, os.path.join(self.commit_path, "deepjit.jsonl"))
+
+        simcom_dict = [{
+            "commit_id": self.ids[i],
+            "messages": self.messages[i],
+            "code_change": self.simcom_codes[i],
+            "label": self.labels[i]
+        } for i in range(len(self.ids))]
+        save_jsonl(simcom_dict, os.path.join(self.commit_path, "simcom.jsonl"))

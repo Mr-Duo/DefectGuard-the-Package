@@ -1,5 +1,6 @@
 from importlib.resources import files
 import os, gdown
+import json
 
 SRC_PATH = str(files('defectguard'))
 
