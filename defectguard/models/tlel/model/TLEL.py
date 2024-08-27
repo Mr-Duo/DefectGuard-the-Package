@@ -34,8 +34,8 @@ def split_df(df, num_subdf):
 
 
 def random_undersampling(df):
-    majority_class = df[df['bug'] == 0]
-    minority_class = df[df['bug'] == 1]
+    majority_class = df[df['label'] == 0]
+    minority_class = df[df['label'] == 1]
     if len(majority_class) < len(minority_class):
         majority_class, minority_class = minority_class, majority_class
 

@@ -157,7 +157,12 @@ def training_deep_learning(params, dg_cache_path):
             if valid_score > best_valid_score:
                 best_valid_score = valid_score
                 print('Save a better model', best_valid_score.item())
-                model.save(f'{dg_cache_path}/save/{params.repo_name}')
+                torch.save({
+                    'epoch': epoch,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'loss': loss.item(),
+                }, model_save_path)
             else:
                 print('No update of models', early_stop_count)
                 if epoch > 5:
@@ -170,7 +175,12 @@ def training_deep_learning(params, dg_cache_path):
             if loss_score < smallest_loss:
                 smallest_loss = loss_score
                 print('Save a better model', smallest_loss)
-                model.save(model_save_path)
+                torch.save({
+                    'epoch': epoch,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'loss': loss.item(),
+                }, model_save_path)
             else:
                 print('No update of models', early_stop_count)
                 if epoch > 5:
