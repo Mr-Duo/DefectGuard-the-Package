@@ -18,25 +18,24 @@ from .JITCrawler import BasicPipeline
 from argparse import Namespace
 
 def init_model(model_name, language, device):
-    match model_name:
-        case "deepjit":
-            return DeepJIT(language=language, device=device)
-        case "cc2vec":
-            return CC2Vec(language=language, device=device)
-        case "simcom":
-            return SimCom(language=language, device=device)
-        case "lapredict":
-            return LAPredict(language=language)
-        case "tlel":
-            return TLEL(language=language)
-        case "jitline":
-            return JITLine(language=language)
-        case "la":
-            return LAPredict(language=language)
-        case "lr":
-            return LogisticRegression(language=language)
-        case _:
-            raise Exception("No such model")
+    if model_name == "deepjit":
+        return DeepJIT(language=language, device=device)
+    elif model_name == "cc2vec":
+        return CC2Vec(language=language, device=device)
+    elif model_name == "simcom":
+        return SimCom(language=language, device=device)
+    elif model_name == "lapredict":
+        return LAPredict(language=language)
+    elif model_name == "tlel":
+        return TLEL(language=language)
+    elif model_name == "jitline":
+        return JITLine(language=language)
+    elif model_name == "la":
+        return LAPredict(language=language)
+    elif model_name == "lr":
+        return LogisticRegression(language=language)
+    else:
+        raise Exception("No such model")
 
 def inferencing(params):
     logger("Start DefectGuard")
