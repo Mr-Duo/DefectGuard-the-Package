@@ -1,7 +1,7 @@
 from defectguard.models.BaseWraper import BaseWraper
 import pickle, json, torch, os
 from .model import DeepJITModel
-from defectguard.utils.utils import download_folder, SRC_PATH
+from defectguard.utils.utils import download_folder, SRC_PATH, open_jsonl
 
 class SimCom(BaseWraper):
     def __init__(self, language='cpp', device="cpu"):
@@ -37,9 +37,9 @@ class SimCom(BaseWraper):
             
         # Load dictionary
         if dictionary:
-            dictionary = pickle.load(open(dictionary, 'rb'))
+            dictionary = open_jsonl(dictionary)
         else:
-            dictionary = pickle.load(open(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}_dictionary", 'rb'))
+            dictionary = open_jsonl(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}_dictionary")
         self.message_dictionary, self.code_dictionary = dictionary
 
         # Load parameters

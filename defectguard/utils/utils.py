@@ -152,3 +152,10 @@ def download_folder(model_name, language):
     download_list = create_download_list(model_name, language)
     for item in download_list:
         download_file(IDS[model_name][item], f'{folder_path}/{item}')
+
+def open_jsonl(file):
+    data = []
+    with open(file, "r") as f:
+        for line in f:
+            data.append(json.loads(line.strip()))
+    return data

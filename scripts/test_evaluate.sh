@@ -1,7 +1,9 @@
 #!bin/bash
 
-defectguard -debug -log_to_file evaluating \
-    -model deepjit \
+defectguard evaluating \
+    -model simcom \
     -dg_save_folder . \
-    -repo_name Tic-tac-toe-Game-using-Network-Socket-APIs \
-    -repo_language C++ \
+    -repo_name FFmpeg \
+    -repo_language C \
+    -feature_test_set "dataset/FFmpeg/feature/SETUP1-features-test-FFmpeg.jsonl" \
+    -commit_test_set "dataset/FFmpeg/commit/SETUP1-simcom-test-FFmpeg.jsonl"

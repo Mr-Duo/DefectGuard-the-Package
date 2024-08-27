@@ -1,5 +1,6 @@
 import os, torch, pickle
 from torch.utils.data import Dataset, DataLoader
+from typing import List, Dict
 import torch.nn as nn
 from .models import (
     DeepJIT,
@@ -14,6 +15,7 @@ from sklearn.linear_model import LogisticRegression as sk_LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from imblearn.under_sampling import RandomUnderSampler
 from .utils.padding import padding_data
+from .utils.utils import open_jsonl
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score, precision_recall_curve, auc
 import numpy as np
@@ -46,31 +48,37 @@ def init_model(model_name, language, device):
             raise Exception("No such model")
 
 class CustomDataset(Dataset):
-    def __init__(self, data):
+    def __init__(self, data, code_dict, msg_dict, hyperparameters):
         self.data = data
+        self.code_dict = code_dict
+        self.msg_dict = msg_dict
+        self.hyperparameters = hyperparameters
     
     def __len__(self):
         return len(self.data)
     
     def __getitem__(self, idx):
-        # commit_hash = self.ids[idx]
-        # labels = torch.tensor(self.labels[idx], dtype=torch.float32)
-        # code = self.code[idx]
-        # message = self.message[idx]
-        # code = torch.tensor(code)
-        # message = torch.tensor(message)
+        item = self.data[idx]
+        msg_dict = self.msg_dict
+        code_dict = self.code_dict
 
-        return self.data[idx]
+        commit_hash = item['commit_id']
+        labels = torch.tensor(item['label'], dtype=torch.float32)
+        padded_code = padding_data(data=item['code_change'], dictionary=code_dict, params=self.hyperparameters, type='code')
+        padded_message = padding_data(data=item['messages'], dictionary=msg_dict, params=self.hyperparameters, type='msg')
+        code = torch.tensor(padded_code)
+        message = torch.tensor(padded_message)
 
-def process_data(file):
-    data = []
-    with open(file, "r") as f:
-        for line in f:
-            data.append(json.dumps(line))
+        return {
+            'commit_hash': commit_hash,
+            'code': code,
+            'message': message,
+            'labels': labels
+        }
     
 def training_deep_learning(params, dg_cache_path):
     commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
-    dictionary_path = f'{commit_path}/{params.repo_name}_train_dict.json' if params.dictionary is None else params.dictionary
+    dictionary_path = f'{commit_path}/{params.repo_name}_train_dict.jsonl' if params.dictionary is None else params.dictionary
     train_set_path = f'{commit_path}/{params.model}_{params.repo_name}_train.jsonl' if params.commit_train_set is None else params.commit_train_set
     val_set_path = f'{commit_path}/{params.model}_{params.repo_name}_val.jsonl' if params.commit_val_set is None else params.commit_val_set
     model_save_path = f'{dg_cache_path}/save/{params.repo_name}'
@@ -83,34 +91,19 @@ def training_deep_learning(params, dg_cache_path):
         model.initialize(dictionary=dictionary_path)
 
     # Load dataset
-    trained_data = load_data(train_set_path)
-    ids = trained_data["commit_id"]
-    messages = trained_data["message"]
-    codes = trained_data["code_change"]
-    labels = trained_data["label"]
+    train_data = open_jsonl(train_set_path)
 
     if params.model == "simcom":
-        val_data = load_data(train_set_path)
-        val_ids = val_data["commit_id"]
-        val_messages = val_data["message"]
-        val_codes = val_data["code_change"]
-        val_labels = val_data["label"]
+        val_data = open_jsonl(val_set_path)
 
     dict_msg, dict_code = model.message_dictionary, model.code_dictionary
 
-    pad_msg = padding_data(data=messages, dictionary=dict_msg, params=model.hyperparameters, type='msg')        
-    pad_code = padding_data(data=codes, dictionary=dict_code, params=model.hyperparameters, type='code')
-
-    if params.model == "simcom":
-        val_pad_msg = padding_data(data=val_messages, dictionary=dict_msg, params=model.hyperparameters, type='msg')        
-        val_pad_code = padding_data(data=val_codes, dictionary=dict_code, params=model.hyperparameters, type='code')
-
-    code_dataset = CustomDataset(ids, pad_code, pad_msg, labels)
+    code_dataset = CustomDataset(train_data, dict_code, dict_msg, model.hyperparameters)
     code_dataloader = DataLoader(code_dataset, batch_size=model.hyperparameters['batch_size'])
 
     if params.model == "simcom":
-        val_code_dataset = CustomDataset(val_ids, val_pad_code, val_pad_msg, val_labels)
-        val_code_dataloader = DataLoader(val_code_dataset, batch_size=model.hyperparameters['batch_size'])
+        val_code_dataset = CustomDataset(val_data, dict_code, dict_msg, model.hyperparameters)
+        val_code_dataloader = DataLoader(val_data, batch_size=model.hyperparameters['batch_size'])
 
     optimizer = torch.optim.Adam(model.get_parameters(), lr=params.learning_rate)
     criterion = nn.BCELoss()
@@ -186,8 +179,8 @@ def training_deep_learning(params, dg_cache_path):
                     break
 
 def training_machine_learning(params, dg_cache_path):
-    train_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/{params.repo_name}_train.csv' if params.feature_train_set is None else params.feature_train_set
-    train_df = pd.read_csv(train_df_path)
+    train_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/{params.repo_name}_train.jsonl' if params.feature_train_set is None else params.feature_train_set
+    train_df = pd.read_json(train_df_path, lines=True)
     model = init_model(params.model, params.repo_language, params.device)
 
     cols = (
@@ -211,7 +204,7 @@ def training_machine_learning(params, dg_cache_path):
         ]
     )
     X_train = train_df.loc[:, cols]
-    y_train = train_df.loc[:, "bug"]
+    y_train = train_df.loc[:, "label"]
 
     match model.model_name:
         case "simcom":

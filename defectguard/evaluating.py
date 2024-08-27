@@ -11,6 +11,7 @@ from .models import (
 )
 from .utils.padding import padding_data
 from .utils.logger import logger, logs
+from .utils.utils import open_jsonl
 from tqdm import tqdm
 import pandas as pd
 from sklearn.metrics import roc_auc_score
@@ -36,30 +37,33 @@ def init_model(model_name, language, device):
             raise Exception("No such model")
 
 class CustomDataset(Dataset):
-    def __init__(self, ids, code, message, labels):
-        self.ids = ids
-        self.code = code
-        self.message = message
-        self.labels = labels
+    def __init__(self, data, code_dict, msg_dict, hyperparameters):
+        self.data = data
+        self.code_dict = code_dict
+        self.msg_dict = msg_dict
+        self.hyperparameters = hyperparameters
     
     def __len__(self):
-        return len(self.code)
+        return len(self.data)
     
     def __getitem__(self, idx):
-        commit_hash = self.ids[idx]
-        labels = torch.tensor(self.labels[idx], dtype=torch.float32)
-        code = self.code[idx]
-        message = self.message[idx]
-        code = torch.tensor(code)
-        message = torch.tensor(message)
+        item = self.data[idx]
+        msg_dict = self.msg_dict
+        code_dict = self.code_dict
+
+        commit_hash = item['commit_id']
+        labels = torch.tensor(item['label'], dtype=torch.float32)
+        padded_code = padding_data(data=item['code_change'], dictionary=code_dict, params=self.hyperparameters, type='code')
+        padded_message = padding_data(data=item['messages'], dictionary=msg_dict, params=self.hyperparameters, type='msg')
+        code = torch.tensor(padded_code)
+        message = torch.tensor(padded_message)
 
         return {
             'commit_hash': commit_hash,
             'code': code,
             'message': message,
             'labels': labels
-        }
-    
+        }    
 def evaluating_deep_learning(pretrain, params, dg_cache_path):
     commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
     dictionary_path = f'{commit_path}/{params.repo_name}_train_dict.pkl' if params.dictionary is None else params.dictionary
@@ -75,15 +79,11 @@ def evaluating_deep_learning(pretrain, params, dg_cache_path):
         model.initialize(dictionary=dictionary_path, state_dict=pretrain_path)
 
     # Load dataset
-    loaded_data = pickle.load(open(test_set_path, 'rb'))
-    ids, messages, commits, labels = loaded_data
+    test_data = open_jsonl(test_set_path)
 
     dict_msg, dict_code = model.message_dictionary, model.code_dictionary
 
-    pad_msg = padding_data(data=messages, dictionary=dict_msg, params=model.hyperparameters, type='msg')        
-    pad_code = padding_data(data=commits, dictionary=dict_code, params=model.hyperparameters, type='code')
-
-    code_dataset = CustomDataset(ids, pad_code, pad_msg, labels)
+    code_dataset = CustomDataset(test_data, dict_code, dict_msg, model.hyperparameters)
     code_dataloader = DataLoader(code_dataset, batch_size=1)
 
     if model.model_name == "simcom":
@@ -108,7 +108,7 @@ def evaluating_deep_learning(pretrain, params, dg_cache_path):
 
 def evaluating_machine_learning(pretrain, params, dg_cache_path):
     test_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/{params.repo_name}_test.csv' if params.feature_test_set is None else params.feature_test_set
-    test_df = pd.read_csv(test_df_path)
+    test_df = pd.read_json(test_df_path, lines=True)
     model = init_model(params.model, params.repo_language, params.device)
 
     if params.from_pretrain:
@@ -136,9 +136,9 @@ def evaluating_machine_learning(pretrain, params, dg_cache_path):
             "sexp",
         ]
     )
-    commit_hashes = test_df.loc[:, "_id"].to_list()
+    commit_hashes = test_df.loc[:, "commit_id"].to_list()
     X_test = test_df.loc[:, cols]
-    y_test = test_df.loc[:, "bug"]
+    y_test = test_df.loc[:, "label"]
 
     y_proba = model.predict_proba(X_test)[:, 1]
 
