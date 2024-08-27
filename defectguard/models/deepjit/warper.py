@@ -38,7 +38,7 @@ class DeepJIT(BaseWraper):
             with open(hyperparameters, 'r') as file:
                 self.hyperparameters = json.load(file)
         else:
-            with open(f"{SRC_PATH}/models/metadata/hyperparameters", 'r') as file:
+            with open(f"{SRC_PATH}/models/hyperparameters.json", 'r') as file:
                 self.hyperparameters = json.load(file)
 
         # Set up param
