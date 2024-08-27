@@ -28,24 +28,23 @@ def auc_pc(label, pred):
     lr_auc = auc(lr_recall, lr_precision)
     return lr_auc
 
-def init_model(model_name, language, device):
-    match model_name:
-        case "deepjit":
-            return DeepJIT(language=language, device=device)
-        case "cc2vec":
-            return CC2Vec(language=language, device=device)
-        case "simcom":
-            return SimCom(language=language, device=device)
-        case "lapredict":
-            return LAPredict(language=language)
-        case "tlel":
-            return TLEL(language=language)
-        case "jitline":
-            return JITLine(language=language)
-        case "lr":
-            return LogisticRegression(language=language)
-        case _:
-            raise Exception("No such model")
+def init_model(model_name, language, device):   
+    if  model_name == "deepjit":
+        return DeepJIT(language=language, device=device)
+    elif  model_name == "cc2vec":
+        return CC2Vec(language=language, device=device)
+    elif  model_name == "simcom":
+        return SimCom(language=language, device=device)
+    elif  model_name == "lapredict":
+        return LAPredict(language=language)
+    elif  model_name == "tlel":
+        return TLEL(language=language)
+    elif  model_name == "jitline":
+        return JITLine(language=language)
+    elif  model_name == "lr":
+        return LogisticRegression(language=language)
+    else:
+        raise Exception("No such model")
 
 class CustomDataset(Dataset):
     def __init__(self, data, code_dict, msg_dict, hyperparameters):
@@ -206,22 +205,22 @@ def training_machine_learning(params, dg_cache_path):
     X_train = train_df.loc[:, cols]
     y_train = train_df.loc[:, "label"]
 
-    match model.model_name:
-        case "simcom":
-            X_train, y_train = RandomUnderSampler(random_state=42).fit_resample(X_train, y_train)
-            model.sim = RandomForestClassifier()
-            model.sim.fit(X_train, y_train)
-            model.save_sim(f'{dg_cache_path}/save/{params.repo_name}')
-        case "lapredict" | "lr":
-            model.model = sk_LogisticRegression(class_weight='balanced', max_iter=1000)
-            model.model.fit(X_train, y_train)
-            model.save(f'{dg_cache_path}/save/{params.repo_name}')
-        case "tlel":
-            model.model.fit(X_train, y_train)
-            model.save(f'{dg_cache_path}/save/{params.repo_name}')
-            pass
-        case _:
-            raise Exception("No such model")
+    
+    if model.model_name == "simcom":
+        X_train, y_train = RandomUnderSampler(random_state=42).fit_resample(X_train, y_train)
+        model.sim = RandomForestClassifier()
+        model.sim.fit(X_train, y_train)
+        model.save_sim(f'{dg_cache_path}/save/{params.repo_name}')
+    elif model.model_name == "lapredict" or model.model_name == "lr":
+        model.model = sk_LogisticRegression(class_weight='balanced', max_iter=1000)
+        model.model.fit(X_train, y_train)
+        model.save(f'{dg_cache_path}/save/{params.repo_name}')
+    elif model.model_name == "tlel":
+        model.model.fit(X_train, y_train)
+        model.save(f'{dg_cache_path}/save/{params.repo_name}')
+        pass
+    else:
+        raise Exception("No such model")
 
 def training(params):
     # create save folders

@@ -18,23 +18,22 @@ from sklearn.metrics import roc_auc_score
 from datetime import datetime
 
 def init_model(model_name, language, device):
-    match model_name:
-        case "deepjit":
-            return DeepJIT(language=language, device=device)
-        case "cc2vec":
-            return CC2Vec(language=language, device=device)
-        case "simcom":
-            return SimCom(language=language, device=device)
-        case "lapredict":
-            return LAPredict(language=language)
-        case "tlel":
-            return TLEL(language=language)
-        case "jitline":
-            return JITLine(language=language)
-        case "lr":
-            return LogisticRegression(language=language)
-        case _:
-            raise Exception("No such model")
+    if model_name == "deepjit":
+        return DeepJIT(language=language, device=device)
+    elif model_name == "cc2vec":
+        return CC2Vec(language=language, device=device)
+    elif model_name == "simcom":
+        return SimCom(language=language, device=device)
+    elif model_name == "lapredict":
+        return LAPredict(language=language)
+    elif model_name == "tlel":
+        return TLEL(language=language)
+    elif model_name == "jitline":
+        return JITLine(language=language)
+    elif model_name == "lr":
+        return LogisticRegression(language=language)
+    else:
+        raise Exception("No such model")
 
 class CustomDataset(Dataset):
     def __init__(self, data, code_dict, msg_dict, hyperparameters):
@@ -145,22 +144,21 @@ def evaluating_machine_learning(pretrain, params, dg_cache_path):
     return commit_hashes, y_proba, y_test
         
 def get_pretrain(model_name):
-    match model_name:
-        case "deepjit":
-            return "deepjit.pt"
-        case "sim":
-            return "sim.pkl"
-        case "com":
-            return "com.pt"
-        case "lapredict":
-            return "lapredict.pkl"
-        case "lr":
-            return "lr.pkl"
-        case "tlel":
-            return "tlel.pkl"
-        case _:
-            raise Exception("No such model")
-        
+    if model_name == "deepjit":
+        return "deepjit.pt"
+    elif model_name == "sim":
+        return "sim.pkl"
+    elif model_name == "com":
+        return "com.pt"
+    elif model_name == "lapredict":
+        return "lapredict.pkl"
+    elif model_name == "lr":
+        return "lr.pkl"
+    elif model_name == "tlel":
+        return "tlel.pkl"
+    else:
+        raise Exception("No such model")
+    
 def average(proba_1, proba_2):
     if len(proba_1) != len(proba_2):
         raise ValueError("Both lists must be of the same length")
