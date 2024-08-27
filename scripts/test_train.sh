@@ -8,4 +8,4 @@ defectguard training \
     -dictionary "dataset/FFmpeg/commit/dict-FFmpeg.jsonl" \
     -dg_save_folder . \
     -repo_name FFmpeg \
-    -repo_language C \
+    -repo_language C
