@@ -14,7 +14,7 @@ class SimCom(BaseWraper):
         self.message_dictionary = None
         self.code_dictionary = None
         self.hyperparameters = None
-        download_folder(self.model_name, self.language)
+        # download_folder(self.model_name, self.language)
 
     def __call__(self, message, code):
         return self.com(message, code)
@@ -47,7 +47,7 @@ class SimCom(BaseWraper):
             with open(hyperparameters, 'r') as file:
                 self.hyperparameters = json.load(file)
         else:
-            with open(f"{SRC_PATH}/models/metadata/{self.model_name}/hyperparameters", 'r') as file:
+            with open(f"{SRC_PATH}/models/metadata/hyperparameters", 'r') as file:
                 self.hyperparameters = json.load(file)
 
         # Set up param

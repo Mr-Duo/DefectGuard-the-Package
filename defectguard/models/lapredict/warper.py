@@ -11,7 +11,7 @@ class LAPredict(BaseWraper):
         self.initialized = False
         self.model = None
         self.columns = (["la"])
-        download_folder(self.model_name, self.language)
+        # download_folder(self.model_name, self.language)
         
     def initialize(self, pretrain=None):
         if pretrain:

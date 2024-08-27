@@ -12,7 +12,7 @@ class TLELModel(BaseWraper):
         self.initialized = False
         self.model = TLEL()
         self.columns = (["ns","nd","nf","entrophy","la","ld","lt","fix","ndev","age","nuc","exp","rexp","sexp"])
-        download_folder(self.model_name, self.language)
+        # download_folder(self.model_name, self.language)
         
     def initialize(self, pretrain=None):
         if pretrain:

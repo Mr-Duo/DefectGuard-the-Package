@@ -1,12 +1,12 @@
 import argparse, os, random, sys, torch
-from .utils.logger import logger
-from .utils.utils import SRC_PATH
+from defectguard.utils.logger import logger
+from defectguard.utils.utils import SRC_PATH
 from datetime import datetime
 import numpy as np
-from .inferencing import inferencing
-from .mining import mining
-from .training import training
-from .evaluating import evaluating
+from defectguard.inferencing import inferencing
+from defectguard.mining import mining
+from defectguard.training import training
+from defectguard.evaluating import evaluating
 
 __version__ = "0.1.33"
 
