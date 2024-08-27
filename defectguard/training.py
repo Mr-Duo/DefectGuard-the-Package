@@ -52,32 +52,33 @@ class CustomDataset(Dataset):
         self.code_dict = code_dict
         self.msg_dict = msg_dict
         self.hyperparameters = hyperparameters
-    
+        
+        self.id = [item["commit_id"] for item in self.data]
+        self.codes = [item["code_change"] for item in self.data]
+        self.messages = [item["messages"] for item in self.data]
+        self.labels = [item["label"] for item in self.data]
+        self.codes = padding_data(data=self.codes, dictionary=self.code_dict, params=self.hyperparameters, type='code')
+        self.messages = padding_data(data=self.messages, dictionary=self.msg_dict, params=self.hyperparameters, type='msg')
+        
+        self.data = None
     def __len__(self):
-        return len(self.data)
+        return len(self.id)
     
     def __getitem__(self, idx):
-        item = self.data[idx]
-        msg_dict = self.msg_dict
-        code_dict = self.code_dict
-
-        commit_hash = item['commit_id']
-        labels = torch.tensor(item['label'], dtype=torch.float32)
-        padded_code = padding_data(data=item['code_change'], dictionary=code_dict, params=self.hyperparameters, type='code')
-        padded_message = padding_data(data=item['messages'], dictionary=msg_dict, params=self.hyperparameters, type='msg')
-        code = torch.tensor(padded_code)
-        message = torch.tensor(padded_message)
-
+        commit_hash = self.id[idx]
+        label = torch.tensor(self.labels[idx], dtype=torch.float32)
+        code = torch.tensor(self.codes[idx])
+        message = torch.tensor(self.messages[idx])
         return {
-            'commit_hash': commit_hash,
-            'code': code,
+            "commit_hash": commit_hash,
+            "code": code,
             'message': message,
-            'labels': labels
+            "labels": label
         }
     
 def training_deep_learning(params, dg_cache_path):
     commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
-    dictionary_path = f'{commit_path}/{params.repo_name}_train_dict.jsonl' if params.dictionary is None else params.dictionary
+    dictionary_path = f'{commit_path}/dict.jsonl' if params.dictionary is None else params.dictionary
     train_set_path = f'{commit_path}/{params.model}_{params.repo_name}_train.jsonl' if params.commit_train_set is None else params.commit_train_set
     val_set_path = f'{commit_path}/{params.model}_{params.repo_name}_val.jsonl' if params.commit_val_set is None else params.commit_val_set
     model_save_path = f'{dg_cache_path}/save/{params.repo_name}'
@@ -102,7 +103,7 @@ def training_deep_learning(params, dg_cache_path):
 
     if params.model == "simcom":
         val_code_dataset = CustomDataset(val_data, dict_code, dict_msg, model.hyperparameters)
-        val_code_dataloader = DataLoader(val_data, batch_size=model.hyperparameters['batch_size'])
+        val_code_dataloader = DataLoader(val_code_dataset, batch_size=model.hyperparameters['batch_size'])
 
     optimizer = torch.optim.Adam(model.get_parameters(), lr=params.learning_rate)
     criterion = nn.BCELoss()

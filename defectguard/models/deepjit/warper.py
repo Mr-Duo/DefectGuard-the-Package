@@ -31,7 +31,7 @@ class DeepJIT(BaseWraper):
             dictionary = open_jsonl(dictionary)
         else:
             dictionary = open_jsonl(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}_dictionary")
-        self.message_dictionary, self.code_dictionary = dictionary
+        self.message_dictionary, self.code_dictionary = dictionary[0], dictionary[1]
 
         # Load parameters
         if hyperparameters:

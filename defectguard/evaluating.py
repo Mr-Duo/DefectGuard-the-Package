@@ -41,28 +41,30 @@ class CustomDataset(Dataset):
         self.code_dict = code_dict
         self.msg_dict = msg_dict
         self.hyperparameters = hyperparameters
-    
+        
+        self.id = [item["commit_id"] for item in self.data]
+        self.codes = [item["code_change"] for item in self.data]
+        self.messages = [item["messages"] for item in self.data]
+        self.labels = [item["label"] for item in self.data]
+        self.codes = padding_data(data=self.codes, dictionary=self.code_dict, params=self.hyperparameters, type='code')
+        self.messages = padding_data(data=self.messages, dictionary=self.msg_dict, params=self.hyperparameters, type='msg')
+        
+        self.data = None
     def __len__(self):
-        return len(self.data)
+        return len(self.id)
     
     def __getitem__(self, idx):
-        item = self.data[idx]
-        msg_dict = self.msg_dict
-        code_dict = self.code_dict
-
-        commit_hash = item['commit_id']
-        labels = torch.tensor(item['label'], dtype=torch.float32)
-        padded_code = padding_data(data=item['code_change'], dictionary=code_dict, params=self.hyperparameters, type='code')
-        padded_message = padding_data(data=item['messages'], dictionary=msg_dict, params=self.hyperparameters, type='msg')
-        code = torch.tensor(padded_code)
-        message = torch.tensor(padded_message)
-
+        commit_hash = self.id[idx]
+        label = torch.tensor(self.labels[idx], dtype=torch.float32)
+        code = torch.tensor(self.codes[idx])
+        message = torch.tensor(self.messages[idx])
         return {
             'commit_hash': commit_hash,
             'code': code,
             'message': message,
-            'labels': labels
-        }    
+            'labels': label
+        }
+
 def evaluating_deep_learning(pretrain, params, dg_cache_path):
     commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
     dictionary_path = f'{commit_path}/{params.repo_name}_train_dict.pkl' if params.dictionary is None else params.dictionary

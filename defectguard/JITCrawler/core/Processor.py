@@ -216,7 +216,7 @@ class Processor:
             index=False,
         )
         code_msg_dict = create_dict(self.messages, self.deepjit_codes)
-        save_json(code_msg_dict, os.path.join(self.commit_path, "dict.json"))
+        save_jsonl(code_msg_dict, os.path.join(self.commit_path, "dict.jsonl"))
 
         cc2vec_dict = [{
             "commit_id": self.ids[i],
