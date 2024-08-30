@@ -2,6 +2,7 @@ from defectguard.models.BaseWraper import BaseWraper
 import pickle, json, torch, os
 from .model import DeepJITModel
 from defectguard.utils.utils import download_folder, SRC_PATH, open_jsonl
+from sklearn.ensemble import RandomForestClassifier
 
 class SimCom(BaseWraper):
     def __init__(self, language='cpp', device="cpu"):
@@ -25,7 +26,7 @@ class SimCom(BaseWraper):
     def set_device(self, device):
         self.device = device
 
-    def initialize(self, dictionary=None, hyperparameters=None, from_pretrain=True, state_dict=None, pretrain=None):
+    def initialize(self, dictionary=None, hyperparameters=None, from_pretrain=None, state_dict=None, pretrain=None):
         if self.initialized:
             return
         
@@ -33,13 +34,13 @@ class SimCom(BaseWraper):
         if pretrain:
             self.sim = pickle.load(open(pretrain, "rb"))
         else:
-            self.sim = pickle.load(open(f"{SRC_PATH}/models/metadata/{self.model_name}/sim_{self.language}", "rb"))
+            self.sim = RandomForestClassifier()
             
         # Load dictionary
         if dictionary:
             dictionary = open_jsonl(dictionary)
         else:
-            dictionary = open_jsonl(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}_dictionary")
+            dictionary = open_jsonl(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}_dictionary.jsonl")
         self.message_dictionary, self.code_dictionary = dictionary[0], dictionary[1]
 
         # Load parameters

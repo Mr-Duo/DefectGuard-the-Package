@@ -28,7 +28,7 @@ class LAPredict(BaseWraper):
         print("Preprocessing...")
 
         df = pd.DataFrame(data['features'])
-        commit_ids = df["_id"].to_list()
+        commit_ids = df["commit_id"].to_list()
         df = df.loc[:, self.columns]
 
         return commit_ids, df

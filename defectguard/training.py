@@ -81,7 +81,7 @@ def training_deep_learning(params, dg_cache_path):
     dictionary_path = f'{commit_path}/dict.jsonl' if params.dictionary is None else params.dictionary
     train_set_path = f'{commit_path}/{params.model}_{params.repo_name}_train.jsonl' if params.commit_train_set is None else params.commit_train_set
     val_set_path = f'{commit_path}/{params.model}_{params.repo_name}_val.jsonl' if params.commit_val_set is None else params.commit_val_set
-    model_save_path = f'{dg_cache_path}/save/{params.repo_name}'
+    model_save_path = f'{dg_cache_path}/save/{params.repo_name}/{params.model_name}.pth'
 
     # Init model
     model = init_model(params.model, params.repo_language, params.device)
@@ -112,9 +112,17 @@ def training_deep_learning(params, dg_cache_path):
     best_valid_score = 0
     smallest_loss = 1000000
     early_stop_count = 5
+    start_epoch = 1
+    total_loss = 0
 
-    for epoch in range(1, params.epochs + 1):
-        total_loss = 0
+    if from_pretrain:
+        checkpoint = torch.load(model_save_path)  # Load the last saved checkpoint
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        start_epoch = checkpoint['epoch'] + 1
+        total_loss = checkpoint['loss']
+
+    for epoch in range(start_epoch, params.epochs + 1):
         for batch in code_dataloader:
             # Extract data from DataLoader
             code = batch["code"].to(model.device)
@@ -216,10 +224,8 @@ def training_machine_learning(params, dg_cache_path):
     X_train = train_df.loc[:, cols]
     y_train = train_df.loc[:, "label"]
 
-    
     if model.model_name == "simcom":
         X_train, y_train = RandomUnderSampler(random_state=42).fit_resample(X_train, y_train)
-        model.sim = RandomForestClassifier()
         model.sim.fit(X_train, y_train)
         model.save_sim(f'{dg_cache_path}/save/{params.repo_name}')
     elif model.model_name == "lapredict" or model.model_name == "lr":
@@ -243,10 +249,12 @@ def training(params):
         if not os.path.exists(os.path.join(dg_cache_path, folder)):
             os.mkdir(os.path.join(dg_cache_path, folder))
 
+    if params.model in ["lapredict", "lr", "tlel", "simcom"]:
+        training_machine_learning(params, dg_cache_path)
+
     if params.model in ["deepjit", "simcom"]:
         training_deep_learning(params, dg_cache_path)
 
-    if params.model in ["lapredict", "lr", "tlel", "simcom"]:
-        training_machine_learning(params, dg_cache_path)
+    
 
     
