@@ -249,11 +249,11 @@ def training(params):
         if not os.path.exists(os.path.join(dg_cache_path, folder)):
             os.mkdir(os.path.join(dg_cache_path, folder))
 
-    if params.model in ["lapredict", "lr", "tlel", "simcom"]:
-        training_machine_learning(params, dg_cache_path)
-
     if params.model in ["deepjit", "simcom"]:
         training_deep_learning(params, dg_cache_path)
+
+    if params.model in ["lapredict", "lr", "tlel", "simcom"]:
+        training_machine_learning(params, dg_cache_path)
 
     
 
