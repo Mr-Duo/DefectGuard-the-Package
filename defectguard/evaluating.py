@@ -147,11 +147,11 @@ def evaluating_machine_learning(pretrain, params, dg_cache_path):
         
 def get_pretrain(model_name):
     if model_name == "deepjit":
-        return "deepjit.pt"
+        return "deepjit.pth"
     elif model_name == "sim":
         return "sim.pkl"
     elif model_name == "com":
-        return "com.pt"
+        return "com.pth"
     elif model_name == "lapredict":
         return "lapredict.pkl"
     elif model_name == "lr":
