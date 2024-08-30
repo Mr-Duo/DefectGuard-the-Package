@@ -81,7 +81,7 @@ def training_deep_learning(params, dg_cache_path):
     dictionary_path = f'{commit_path}/dict.jsonl' if params.dictionary is None else params.dictionary
     train_set_path = f'{commit_path}/{params.model}_{params.repo_name}_train.jsonl' if params.commit_train_set is None else params.commit_train_set
     val_set_path = f'{commit_path}/{params.model}_{params.repo_name}_val.jsonl' if params.commit_val_set is None else params.commit_val_set
-    model_save_path = f'{dg_cache_path}/save/{params.repo_name}/{params.model_name}.pth'
+    model_save_path = f'{dg_cache_path}/save/{params.repo_name}/{params.model}.pth'
 
     # Init model
     model = init_model(params.model, params.repo_language, params.device)
