@@ -8,7 +8,8 @@ defectguard training \
     -dictionary "dataset/FFmpeg/commit/dict-FFmpeg.jsonl" \
     -dg_save_folder SETUP1 \
     -repo_name FFmpeg \
-    -repo_language C
+    -device cuda \
+    -repo_language C 
 
 defectguard training \
     -model simcom \
@@ -18,6 +19,7 @@ defectguard training \
     -dictionary "dataset/FFmpeg/commit/dict-FFmpeg.jsonl" \
     -dg_save_folder SETUP2 \
     -repo_name FFmpeg \
+    -device cuda \
     -repo_language C
     
 defectguard training \
@@ -28,6 +30,7 @@ defectguard training \
     -dictionary "dataset/FFmpeg/commit/dict-FFmpeg.jsonl" \
     -dg_save_folder SETUP3 \
     -repo_name FFmpeg \
+    -device cuda \
     -repo_language C
     
 defectguard evaluating \
