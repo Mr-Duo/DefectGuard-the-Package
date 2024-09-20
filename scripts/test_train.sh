@@ -1,8 +1,6 @@
 #!/bin/bash
 
-mkdir SETUP1 SETUP2 SETUP3
-
-python3 defectguard -debug -log_to_file training \
+defectguard -debug -log_to_file training \
     -model simcom \
     -feature_train_set "dataset/FFmpeg/sampled/ros/feature/SETUP1-features-train-FFmpeg.jsonl" \
     -commit_train_set "dataset/FFmpeg/sampled/ros/commit/SETUP1-simcom-train-FFmpeg.jsonl" \
@@ -12,7 +10,7 @@ python3 defectguard -debug -log_to_file training \
     -repo_name FFmpeg \
     -repo_language C
 
-python3 defectguard -debug -log_to_file training \
+defectguard -debug -log_to_file training \
     -model simcom \
     -feature_train_set "dataset/FFmpeg/sampled/ros/feature/SETUP2-features-train-FFmpeg.jsonl" \
     -commit_train_set "dataset/FFmpeg/sampled/ros/commit/SETUP1-simcom-train-FFmpeg.jsonl" \
@@ -22,7 +20,7 @@ python3 defectguard -debug -log_to_file training \
     -repo_name FFmpeg \
     -repo_language C
     
-python3 defectguard -debug -log_to_file training \
+defectguard -debug -log_to_file training \
     -model simcom \
     -feature_train_set "dataset/FFmpeg/sampled/ros/feature/SETUP3-features-train-FFmpeg.jsonl" \
     -commit_train_set "dataset/FFmpeg/sampled/ros/commit/SETUP1-simcom-train-FFmpeg.jsonl" \
@@ -32,7 +30,7 @@ python3 defectguard -debug -log_to_file training \
     -repo_name FFmpeg \
     -repo_language C
     
-python3 defectguard evaluating \
+defectguard evaluating \
     -model simcom \
     -feature_test_set "dataset/FFmpeg/feature/SETUP1-features-test-FFmpeg.jsonl" \
     -commit_test_set "dataset/FFmpeg/commit/SETUP1-simcom-test-FFmpeg.jsonl" \
@@ -41,7 +39,7 @@ python3 defectguard evaluating \
     -repo_name FFmpeg \
     -repo_language C
 
-python3 defectguard evaluating \
+defectguard evaluating \
     -model simcom \
     -feature_test_set "dataset/FFmpeg/feature/SETUP2-features-test-FFmpeg.jsonl" \
     -commit_test_set "dataset/FFmpeg/commit/SETUP2-simcom-test-FFmpeg.jsonl" \
@@ -50,7 +48,7 @@ python3 defectguard evaluating \
     -repo_name FFmpeg \
     -repo_language C
     
-python3 defectguard evaluating \
+defectguard evaluating \
     -model simcom \
     -feature_test_set "dataset/FFmpeg/feature/SETUP2-features-test-FFmpeg.jsonl" \
     -commit_test_set "dataset/FFmpeg/commit/SETUP2-simcom-test-FFmpeg.jsonl" \
