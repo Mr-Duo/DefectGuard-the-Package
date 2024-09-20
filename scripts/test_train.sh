@@ -9,7 +9,8 @@ defectguard training \
     -dg_save_folder SETUP1 \
     -repo_name FFmpeg \
     -device cuda \
-    -repo_language C 
+    -repo_language C  \
+    -epoch 30
 
 defectguard training \
     -model simcom \
@@ -20,7 +21,8 @@ defectguard training \
     -dg_save_folder SETUP2 \
     -repo_name FFmpeg \
     -device cuda \
-    -repo_language C
+    -repo_language C \
+    -epoch 30
     
 defectguard training \
     -model simcom \
@@ -31,7 +33,8 @@ defectguard training \
     -dg_save_folder SETUP3 \
     -repo_name FFmpeg \
     -device cuda \
-    -repo_language C
+    -repo_language C \
+    -epoch 30
     
 defectguard evaluating \
     -model simcom \
