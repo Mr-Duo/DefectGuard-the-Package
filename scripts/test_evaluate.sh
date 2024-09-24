@@ -7,7 +7,7 @@ defectguard evaluating \
     -dictionary "dataset/FFmpeg/commit/dict-FFmpeg.jsonl" \
     -dg_save_folder SETUP1 \
     -repo_name FFmpeg \
-    -devive cuda \
+    -device cuda \
     -repo_language C
 
 defectguard evaluating \
@@ -17,7 +17,7 @@ defectguard evaluating \
     -dictionary "dataset/FFmpeg/commit/dict-FFmpeg.jsonl" \
     -dg_save_folder SETUP2 \
     -repo_name FFmpeg \
-    -devive cuda \
+    -device cuda \
     -repo_language C
     
 defectguard evaluating \
@@ -27,5 +27,5 @@ defectguard evaluating \
     -dictionary "dataset/FFmpeg/commit/dict-FFmpeg.jsonl" \
     -dg_save_folder SETUP3 \
     -repo_name FFmpeg \
-    -devive cuda \
+    -device cuda \
     -repo_language C
