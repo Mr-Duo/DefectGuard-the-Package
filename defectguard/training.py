@@ -76,7 +76,7 @@ class CustomDataset(Dataset):
             "labels": label
         }
     
-def training_deep_learning(params, dg_cache_path):
+def training_deep_learning(model, params, dg_cache_path):
     commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
     dictionary_path = f'{commit_path}/dict.jsonl' if params.dictionary is None else params.dictionary
     train_set_path = f'{commit_path}/{params.model}_{params.repo_name}_train.jsonl' if params.commit_train_set is None else params.commit_train_set
@@ -198,7 +198,7 @@ def training_deep_learning(params, dg_cache_path):
                 if early_stop_count < 0:
                     break
 
-def training_machine_learning(params, dg_cache_path):
+def training_machine_learning(model, params, dg_cache_path):
     train_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/{params.repo_name}_train.jsonl' if params.feature_train_set is None else params.feature_train_set
     train_df = pd.read_json(train_df_path, lines=True)
 
@@ -252,10 +252,10 @@ def training(params):
 
     model = init_model(params.model, params.repo_language, params.device)
     if params.model in ["deepjit", "simcom"]:
-        training_deep_learning(params, dg_cache_path)
+        training_deep_learning(model, params, dg_cache_path)
 
     if params.model in ["lapredict", "lr", "tlel", "simcom"]:
-        training_machine_learning(params, dg_cache_path)
+        training_machine_learning(model, params, dg_cache_path)
 
     
 
