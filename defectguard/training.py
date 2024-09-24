@@ -87,7 +87,6 @@ def training_deep_learning(params, dg_cache_path):
         model_save_path = f'{dg_cache_path}/save/{params.repo_name}/{params.model}.pth'
 
     # Init model
-    model = init_model(params.model, params.repo_language, params.device)
     if params.from_pretrain:
         model.initialize()
     else:
@@ -202,7 +201,6 @@ def training_deep_learning(params, dg_cache_path):
 def training_machine_learning(params, dg_cache_path):
     train_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/{params.repo_name}_train.jsonl' if params.feature_train_set is None else params.feature_train_set
     train_df = pd.read_json(train_df_path, lines=True)
-    model = init_model(params.model, params.repo_language, params.device)
 
     cols = (
         ["la"]
@@ -252,6 +250,7 @@ def training(params):
         if not os.path.exists(os.path.join(dg_cache_path, folder)):
             os.mkdir(os.path.join(dg_cache_path, folder))
 
+    model = init_model(params.model, params.repo_language, params.device)
     if params.model in ["deepjit", "simcom"]:
         training_deep_learning(params, dg_cache_path)
 
