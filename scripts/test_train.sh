@@ -43,8 +43,8 @@ defectguard evaluating \
     -dictionary "dataset/FFmpeg/commit/dict-FFmpeg.jsonl" \
     -dg_save_folder SETUP1 \
     -repo_name FFmpeg \
+    -devive cuda \
     -repo_language C \
-    -devive cuda
 
 defectguard evaluating \
     -model simcom \
@@ -53,8 +53,8 @@ defectguard evaluating \
     -dictionary "dataset/FFmpeg/commit/dict-FFmpeg.jsonl" \
     -dg_save_folder SETUP2 \
     -repo_name FFmpeg \
+    -devive cuda \
     -repo_language C \
-    -device cuda
     
 defectguard evaluating \
     -model simcom \
@@ -63,5 +63,5 @@ defectguard evaluating \
     -dictionary "dataset/FFmpeg/commit/dict-FFmpeg.jsonl" \
     -dg_save_folder SETUP3 \
     -repo_name FFmpeg \
+    -devive cuda \
     -repo_language C \
-    -device cuda
