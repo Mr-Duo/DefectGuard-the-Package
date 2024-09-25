@@ -154,8 +154,15 @@ def download_folder(model_name, language):
     for item in download_list:
         download_file(IDS[model_name][item], f'{folder_path}/{item}')
 
-def open_jsonl(file):  
+def yield_jsonl(file):  
     # Read the file and yield lines in equal parts
     with open(file, 'r') as f:
         for line in f:
             yield json.loads(line.strip())
+
+def open_jsonl(file):
+    data = []
+    with open(file, 'r') as f:
+        for line in f:
+            data.append(json.loads(line.strip()))
+    return data

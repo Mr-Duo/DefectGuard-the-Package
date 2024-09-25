@@ -15,7 +15,7 @@ from sklearn.linear_model import LogisticRegression as sk_LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from imblearn.under_sampling import RandomUnderSampler
 from .utils.padding import padding_data
-from .utils.utils import open_jsonl
+from .utils.utils import yield_jsonl, open_jsonl
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score, precision_recall_curve, auc
 import numpy as np
@@ -67,7 +67,7 @@ class CustomDataset(Dataset):
         
 def load_dataset(file_path, hyperparameters, code_dict, msg_dict):
     data = []
-    for line in open_jsonl(file_path):
+    for line in yield_jsonl(file_path):
         data_point = {}
         data_point["commit_hash"] = line["commit_id"]
         data_point["codes"] = padding_data(data=line["code_change"], dictionary=code_dict, params=hyperparameters, type='code')[0]
