@@ -1,6 +1,7 @@
 from importlib.resources import files
 import os, gdown
 import json
+import math
 
 SRC_PATH = str(files('defectguard'))
 
@@ -153,9 +154,8 @@ def download_folder(model_name, language):
     for item in download_list:
         download_file(IDS[model_name][item], f'{folder_path}/{item}')
 
-def open_jsonl(file):
-    data = []
-    with open(file, "r") as f:
+def open_jsonl(file):  
+    # Read the file and yield lines in equal parts
+    with open(file, 'r') as f:
         for line in f:
-            data.append(json.loads(line.strip()))
-    return data
+            yield json.loads(line.strip())

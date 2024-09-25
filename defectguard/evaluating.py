@@ -38,32 +38,33 @@ def init_model(model_name, language, device):
 class CustomDataset(Dataset):
     def __init__(self, data, code_dict, msg_dict, hyperparameters):
         self.data = data
-        self.code_dict = code_dict
-        self.msg_dict = msg_dict
-        self.hyperparameters = hyperparameters
         
-        self.id = [item["commit_id"] for item in self.data]
-        self.codes = [item["code_change"] for item in self.data]
-        self.messages = [item["messages"] for item in self.data]
-        self.labels = [item["label"] for item in self.data]
-        self.codes = padding_data(data=self.codes, dictionary=self.code_dict, params=self.hyperparameters, type='code')
-        self.messages = padding_data(data=self.messages, dictionary=self.msg_dict, params=self.hyperparameters, type='msg')
-        
-        self.data = None
     def __len__(self):
-        return len(self.id)
+        return len(self.data)
     
     def __getitem__(self, idx):
-        commit_hash = self.id[idx]
-        label = torch.tensor(self.labels[idx], dtype=torch.float32)
-        code = torch.tensor(self.codes[idx])
-        message = torch.tensor(self.messages[idx])
+        commit_hash = self.data[idx]["commit_hash"]
+        label = torch.tensor(self.data[idx]["label"], dtype=torch.float32)
+        code = torch.tensor(self.data[idx]["codes"])
+        message = torch.tensor(self.data[idx]["messages"])
         return {
-            'commit_hash': commit_hash,
-            'code': code,
+            "commit_hash": commit_hash,
+            "code": code,
             'message': message,
-            'labels': label
+            "labels": label
         }
+        
+def load_dataset(file_path, hyperparameters, code_dict, msg_dict):
+    data = []
+    for line in open_jsonl(file_path):
+        data_point = {}
+        data_point["commit_hash"] = line["commit_id"]
+        data_point["codes"] = padding_data(data=line["code_change"], dictionary=code_dict, params=hyperparameters, type='code')[0]
+        data_point["messages"] = padding_data(data=line["messages"], dictionary=msg_dict, params=hyperparameters, type='msg')[0]
+        data_point["label"] = line["label"]
+        data.append(data_point)
+        del data_point
+    return data
 
 def evaluating_deep_learning(pretrain, params, dg_cache_path):
     commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
@@ -80,11 +81,8 @@ def evaluating_deep_learning(pretrain, params, dg_cache_path):
         model.initialize(dictionary=dictionary_path, state_dict=pretrain_path)
 
     # Load dataset
-    test_data = open_jsonl(test_set_path)
-
-    dict_msg, dict_code = model.message_dictionary, model.code_dictionary
-
-    code_dataset = CustomDataset(test_data, dict_code, dict_msg, model.hyperparameters)
+    test_data = load_dataset(test_set_path, model.hyperparameters, model.code_dictionary, model.message_dictionary)
+    code_dataset = CustomDataset(test_data)
     code_dataloader = DataLoader(code_dataset, batch_size=1)
 
     if model.model_name == "simcom":
