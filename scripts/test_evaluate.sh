@@ -22,8 +22,8 @@ defectguard evaluating \
     
 defectguard evaluating \
     -model simcom \
-    -feature_test_set "dataset/FFmpeg/feature/SETUP2-features-test-FFmpeg.jsonl" \
-    -commit_test_set "dataset/FFmpeg/commit/SETUP2-simcom-test-FFmpeg.jsonl" \
+    -feature_test_set "dataset/FFmpeg/feature/SETUP3-features-test-FFmpeg.jsonl" \
+    -commit_test_set "dataset/FFmpeg/commit/SETUP3-simcom-test-FFmpeg.jsonl" \
     -dictionary "dataset/FFmpeg/commit/dict-FFmpeg.jsonl" \
     -dg_save_folder SETUP3 \
     -repo_name FFmpeg \
