@@ -101,11 +101,13 @@ def training_deep_learning(model, params, dg_cache_path):
 
     code_dataset = CustomDataset(train_data)
     code_dataloader = DataLoader(code_dataset, batch_size=model.hyperparameters['batch_size'])
+    del train_data
 
     if params.model == "simcom":
         val_code_dataset = CustomDataset(val_data)
         val_code_dataloader = DataLoader(val_code_dataset, batch_size=model.hyperparameters['batch_size'])
-
+        del val_data
+    
     optimizer = torch.optim.Adam(model.get_parameters(), lr=params.learning_rate)
     criterion = nn.BCELoss()
 
