@@ -104,6 +104,10 @@ def evaluating_deep_learning(pretrain, params, dg_cache_path):
             predict = model(message, code)
             all_predict += predict.cpu().detach().numpy().tolist()
             all_label += labels.cpu().detach().numpy().tolist()
+            
+            # Free GPU memory
+            del code, message, labels, predict
+            torch.cuda.empty_cache()
 
     return commit_hashes, all_predict, all_label
 
