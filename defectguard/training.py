@@ -47,7 +47,7 @@ def init_model(model_name, language, device):
         raise Exception("No such model")
 
 class CustomDataset(Dataset):
-    def __init__(self, data, code_dict, msg_dict, hyperparameters):
+    def __init__(self, data):
         self.data = data
         
     def __len__(self):
