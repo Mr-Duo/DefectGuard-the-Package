@@ -64,7 +64,7 @@ def load_dataset(file_path, hyperparameters, code_dict, msg_dict):
     padding_codes = padding_data(data=codes, dictionary=code_dict, params=hyperparameters, type='code')
     padding_msgs = padding_data(data=messages, dictionary=msg_dict, params=hyperparameters, type='msg')
     
-    return (commit_hashes, codes, messages, labels)
+    return (commit_hashes, padding_codes, padding_msgs, labels)
 
 def evaluating_deep_learning(pretrain, params, dg_cache_path):
     commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
