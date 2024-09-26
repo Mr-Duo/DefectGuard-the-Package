@@ -54,10 +54,10 @@ class CustomDataset(Dataset):
         return len(self.data)
     
     def __getitem__(self, idx):
-        commit_hash = self.data[idx]["commit_hash"]
-        label = torch.tensor(self.data[idx]["label"], dtype=torch.float32)
-        code = torch.tensor(self.data[idx]["codes"])
-        message = torch.tensor(self.data[idx]["messages"])
+        commit_hash = self.data[0][idx]
+        label = torch.tensor(self.data[3][idx], dtype=torch.float32)
+        code = torch.tensor(self.data[1][idx])
+        message = torch.tensor(self.data[2][idx])
         return {
             "commit_hash": commit_hash,
             "code": code,
@@ -66,16 +66,16 @@ class CustomDataset(Dataset):
         }
         
 def load_dataset(file_path, hyperparameters, code_dict, msg_dict):
-    data = []
-    for line in yield_jsonl(file_path):
-        data_point = {}
-        data_point["commit_hash"] = line["commit_id"]
-        data_point["codes"] = padding_data(data=line["code_change"], dictionary=code_dict, params=hyperparameters, type='code')[0]
-        data_point["messages"] = padding_data(data=line["messages"], dictionary=msg_dict, params=hyperparameters, type='msg')[0]
-        data_point["label"] = line["label"]
-        data.append(data_point)
-        del data_point
-    return data
+    data = read_json(file_path)
+    commit_hashes = [d["commit_id"] for d in data]
+    codes = [d["code_change"] for d in data]
+    messages = [d["messages"] for d in data]
+    labels = [d["label"] for d in data]
+    del data
+    padding_codes = padding_data(data=codes, dictionary=code_dict, params=hyperparameters, type='code')
+    padding_msgs = padding_data(data=messages, dictionary=msg_dict, params=hyperparameters, type='msg')
+    
+    return (commit_hashes, codes, messages, labels)
     
 def training_deep_learning(model, params, dg_cache_path):
     commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
