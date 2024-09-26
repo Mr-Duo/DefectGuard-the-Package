@@ -55,7 +55,7 @@ class CustomDataset(Dataset):
         }
         
 def load_dataset(file_path, hyperparameters, code_dict, msg_dict):
-    data = read_json(file_path)
+    data = open_jsonl(file_path)
     commit_hashes = [d["commit_id"] for d in data]
     codes = [d["code_change"] for d in data]
     messages = [d["messages"] for d in data]
