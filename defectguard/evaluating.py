@@ -9,7 +9,7 @@ from .models import (
     TLELModel as TLEL,
     JITLine,
 )
-from .utils.padding import padding_data
+from .utils.padding import padding_data, padding_data_point
 from .utils.logger import logger, logs
 from .utils.utils import yield_jsonl, open_jsonl
 from tqdm import tqdm
@@ -55,16 +55,14 @@ class CustomDataset(Dataset):
         }
         
 def load_dataset(file_path, hyperparameters, code_dict, msg_dict):
-    data = open_jsonl(file_path)
-    commit_hashes = [d["commit_id"] for d in data]
-    codes = [d["code_change"] for d in data]
-    messages = [d["messages"] for d in data]
-    labels = [d["label"] for d in data]
-    del data
-    padding_codes = padding_data(data=codes, dictionary=code_dict, params=hyperparameters, type='code')
-    padding_msgs = padding_data(data=messages, dictionary=msg_dict, params=hyperparameters, type='msg')
-    
-    return (commit_hashes, padding_codes, padding_msgs, labels)
+    commit_hashes, codes, messages, labels = [], [], [], []
+    for data_point in yield_jsonl(file_path):
+        commit_hashes.append(data_point["commit_id"])
+        codes.append(padding_data_point(data=data_point["code_change"].split("\n"), dictionary=code_dict, params=hyperparameters, type='code'))
+        messages.append(padding_data_point(data=data_point["messages"], dictionary=msg_dict, params=hyperparameters, type='msg'))
+        labels.append(data_point["label"])
+
+    return (commit_hashes, codes, messages, labels)
 
 def evaluating_deep_learning(pretrain, params, dg_cache_path):
     commit_path = f'{dg_cache_path}/dataset/{params.repo_name}/commit'
