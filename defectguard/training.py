@@ -51,13 +51,13 @@ class CustomDataset(Dataset):
         self.data = data
         
     def __len__(self):
-        return len(self.data)
+        return len(self.data[0])
     
     def __getitem__(self, idx):
         commit_hash = self.data[0][idx]
-        label = torch.tensor(self.data[3][idx], dtype=torch.float32)
         code = torch.tensor(self.data[1][idx])
         message = torch.tensor(self.data[2][idx])
+        label = torch.tensor(self.data[3][idx], dtype=torch.float32)
         return {
             "commit_hash": commit_hash,
             "code": code,
@@ -133,7 +133,8 @@ def training_deep_learning(model, params, dg_cache_path):
         total_loss = checkpoint['loss']
 
     for epoch in range(start_epoch, params.epochs + 1):
-        for batch in code_dataloader:
+        print(f'Training: Epoch {epoch} / {params.epochs} -- Start')
+        for batch in tqdm(code_dataloader):
             # Extract data from DataLoader
             code = batch["code"].to(model.device)
             message = batch["message"].to(model.device)
