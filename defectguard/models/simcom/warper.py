@@ -42,6 +42,7 @@ class SimCom(BaseWraper):
         else:
             dictionary = open_jsonl(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}_dictionary.jsonl")
         self.message_dictionary, self.code_dictionary = dictionary[0], dictionary[1]
+        del dictionary
 
         # Load parameters
         if hyperparameters:

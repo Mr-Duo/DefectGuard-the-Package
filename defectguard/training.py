@@ -86,12 +86,13 @@ def training_deep_learning(model, params, dg_cache_path):
     else:
         model_save_path = f'{dg_cache_path}/save/{params.repo_name}/{params.model}.pth'
 
+    print("Create path!")
     # Init model
     if params.from_pretrain:
         model.initialize()
     else:
         model.initialize(dictionary=dictionary_path)
-
+    print("Init model!")
     # Load dataset
     train_data = load_dataset(train_set_path, model.hyperparameters, model.code_dictionary, model.message_dictionary)
 

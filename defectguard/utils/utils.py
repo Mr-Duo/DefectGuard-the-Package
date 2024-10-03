@@ -158,11 +158,11 @@ def yield_jsonl(file):
     # Read the file and yield lines in equal parts
     with open(file, 'r') as f:
         for line in f:
-            yield json.loads(line.strip())
+            yield json.loads(line)
 
 def open_jsonl(file):
     data = []
     with open(file, 'r') as f:
         for line in f:
-            data.append(json.loads(line.strip()))
+            data.append(json.loads(line))
     return data
