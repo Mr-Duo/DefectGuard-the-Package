@@ -58,8 +58,8 @@ def load_dataset(file_path, hyperparameters, code_dict, msg_dict):
     commit_hashes, codes, messages, labels = [], [], [], []
     for data_point in yield_jsonl(file_path):
         commit_hashes.append(data_point["commit_id"])
-        codes.append(padding_data_point(data=data_point["code_change"].split("\n"), dictionary=code_dict, params=hyperparameters, type='code'))
-        messages.append(padding_data_point(data=data_point["messages"], dictionary=msg_dict, params=hyperparameters, type='msg'))
+        codes.append(padding_data_point(data_point=data_point["code_change"].split("\n"), dictionary=code_dict, params=hyperparameters, type='code'))
+        messages.append(padding_data_point(data_point=data_point["messages"], dictionary=msg_dict, params=hyperparameters, type='msg'))
         labels.append(data_point["label"])
 
     return (commit_hashes, codes, messages, labels)

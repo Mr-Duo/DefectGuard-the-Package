@@ -43,7 +43,8 @@ class SimCom(BaseWraper):
             dictionary = open_jsonl(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}_dictionary.jsonl")
         self.message_dictionary, self.code_dictionary = dictionary[0], dictionary[1]
         del dictionary
-
+        print("Complete dict!")
+        
         # Load parameters
         if hyperparameters:
             with open(hyperparameters, 'r') as file:
@@ -51,12 +52,14 @@ class SimCom(BaseWraper):
         else:
             with open(f"{SRC_PATH}/models/hyperparameters.json", 'r') as file:
                 self.hyperparameters = json.load(file)
-
+        print("Complete load params!")
+        
         # Set up param
         self.hyperparameters["filter_sizes"] = [int(k) for k in self.hyperparameters["filter_sizes"].split(',')]
         self.hyperparameters["vocab_msg"], self.hyperparameters["vocab_code"] = len(self.message_dictionary), len(self.code_dictionary)
         self.hyperparameters["class_num"] = 1
-
+        print("Complete set up params!")
+        
         # Create model and Load pretrain
         self.com = DeepJITModel(self.hyperparameters).to(device=self.device)
         if from_pretrain and dictionary is None:
@@ -65,7 +68,7 @@ class SimCom(BaseWraper):
         elif state_dict:
             checkpoint = torch.load(state_dict, map_location=self.device)
             self.com.load_state_dict(checkpoint["model_state_dict"])
-
+        print("Complete create model!")
         # Set initialized to True
         self.initialized = True
 
