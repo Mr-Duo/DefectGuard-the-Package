@@ -26,7 +26,7 @@ def padding_data_point(data_point, dictionary, params, type):
         return np.array([dict_msg[w.lower()] if w.lower() in dict_msg.keys() else dict_msg['<NULL>'] for w in pad_msg.split(' ')])
     elif type == 'code':
         pad_code = [padding_length(line=line, max_length=params['code_line']) for line in data_point]
-        pad_code = padding_commit_code_line(pad_msg, max_line=params['code_line'], max_length=params['code_line'])
+        pad_code = padding_commit_code_line(pad_code, max_line=params['code_line'], max_length=params['code_line'])
         return np.array([np.array([np.array([dictionary[w.lower()] if w.lower() in dictionary else dictionary['<NULL>'] for w in l.split()]) for l in ml]) for ml in pad_code])
     else:
         print('Your type is incorrect -- please correct it')
