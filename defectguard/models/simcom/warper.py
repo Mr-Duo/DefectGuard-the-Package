@@ -62,12 +62,12 @@ class SimCom(BaseWraper):
         
         # Create model and Load pretrain
         self.com = DeepJITModel(self.hyperparameters).to(device=self.device)
-        if from_pretrain and dictionary is None:
-            checkpoint = torch.load(f"{SRC_PATH}/models/metadata/{self.model_name}/com_{self.language}", map_location=self.device)
-            self.com.load_state_dict(checkpoint["model_state_dict"])
-        elif state_dict:
-            checkpoint = torch.load(state_dict, map_location=self.device)
-            self.com.load_state_dict(checkpoint["model_state_dict"])
+        # if from_pretrain and dictionary is None:
+        #     checkpoint = torch.load(f"{SRC_PATH}/models/metadata/{self.model_name}/com_{self.language}", map_location=self.device)
+        #     self.com.load_state_dict(checkpoint["model_state_dict"])
+        # elif state_dict:
+        #     checkpoint = torch.load(state_dict, map_location=self.device)
+        #     self.com.load_state_dict(checkpoint["model_state_dict"])
         print("Complete create model!")
         # Set initialized to True
         self.initialized = True
