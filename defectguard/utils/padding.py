@@ -23,11 +23,11 @@ def padding_data(data, dictionary, params, type):
 def padding_data_point(data_point, dictionary, params, type):
     if type == 'msg':
         pad_msg = padding_length(line=data_point, max_length=params['message_length'])
-        return np.array([dict_msg[w.lower()] if w.lower() in dict_msg.keys() else dict_msg['<NULL>'] for w in pad_msg.split(' ')])
+        return np.array([dictionary[w.lower()] if w.lower() in dictionary.keys() else dictionary['<NULL>'] for w in pad_msg.split(' ')])
     elif type == 'code':
-        pad_code = [padding_length(line=line, max_length=params['code_line']) for line in data_point]
-        pad_code = padding_commit_code_line(pad_code, max_line=params['code_line'], max_length=params['code_line'])
-        return np.array([np.array([np.array([dictionary[w.lower()] if w.lower() in dictionary else dictionary['<NULL>'] for w in l.split()]) for l in ml]) for ml in pad_code])
+        pad_code = [[padding_length(line=line, max_length=params['code_length']) for line in data_point]]
+        pad_code = padding_commit_code_line(pad_code, max_line=params['code_line'], max_length=params['code_length'])
+        return np.array([np.array([dictionary[w.lower()] if w.lower() in dictionary else dictionary['<NULL>'] for w in l.split()]) for l in pad_code[0]])
     else:
         print('Your type is incorrect -- please correct it')
         exit()
