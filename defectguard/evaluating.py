@@ -69,6 +69,9 @@ def evaluating_deep_learning(pretrain, params, dg_cache_path):
     dictionary_path = f'{commit_path}/{params.repo_name}_train_dict.pkl' if params.dictionary is None else params.dictionary
     test_set_path = f'{commit_path}/{params.model}_{params.repo_name}_test.pkl' if params.commit_test_set is None else params.commit_test_set
     pretrain_path = f'{dg_cache_path}/save/{params.repo_name}/{pretrain}'
+    
+    if not os.path.exists(f'{dg_cache_path}/save/{params.repo_name}'):
+        os.mkdir(f'{dg_cache_path}/save/{params.repo_name}')
 
     # Init model
     model = init_model(params.model, params.repo_language, params.device)
@@ -111,6 +114,10 @@ def evaluating_machine_learning(pretrain, params, dg_cache_path):
     test_df_path = f'{dg_cache_path}/dataset/{params.repo_name}/feature/{params.repo_name}_test.csv' if params.feature_test_set is None else params.feature_test_set
     test_df = pd.read_json(test_df_path, lines=True)
     model = init_model(params.model, params.repo_language, params.device)
+    
+    if not os.path.exists(f'{dg_cache_path}/save/{params.repo_name}'):
+        os.mkdir(f'{dg_cache_path}/save/{params.repo_name}')
+
 
     if params.from_pretrain:
         model.initialize()

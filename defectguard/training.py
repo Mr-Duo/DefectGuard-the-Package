@@ -85,6 +85,9 @@ def training_deep_learning(model, params, dg_cache_path):
         model_save_path = f'{dg_cache_path}/save/{params.repo_name}/com.pth'
     else:
         model_save_path = f'{dg_cache_path}/save/{params.repo_name}/{params.model}.pth'
+        
+    if not os.path.exists(f'{dg_cache_path}/save/{params.repo_name}'):
+        os.mkdir(f'{dg_cache_path}/save/{params.repo_name}')
 
     print("Create path!")
     # Init model
@@ -225,6 +228,9 @@ def training_machine_learning(model, params, dg_cache_path):
     )
     X_train = train_df.loc[:, cols]
     y_train = train_df.loc[:, "label"]
+    
+    if not os.path.exists(f'{dg_cache_path}/save/{params.repo_name}'):
+        os.mkdir(f'{dg_cache_path}/save/{params.repo_name}')
 
     if model.model_name == "simcom":
         X_train, y_train = RandomUnderSampler(random_state=42).fit_resample(X_train, y_train)
