@@ -74,6 +74,10 @@ def load_dataset(file_path, hyperparameters, code_dict, msg_dict):
             messages.append(padding_data_point(data_point=data_point["messages"], dictionary=msg_dict, params=hyperparameters, type='msg'))
             labels.append(data_point["label"])
             bar.update(1)
+    commit_hashes = np.array(commit_hashes)
+    codes = np.array(codes)
+    messages = np.array(messages)
+    labels = np.array(labels)
     return (commit_hashes, codes, messages, labels)
     
 def training_deep_learning(model, params, dg_cache_path):
