@@ -1,6 +1,9 @@
 #!/bin/bash
 
-defectguard training \
+mkdir SETUP1 SETUP2 SETUP3
+mkdir SETUP1/rus SETUP2/rus SETUP3/rus
+
+python3 -m defectguard.cli training  \
     -model simcom \
     -feature_train_set "dataset/FFmpeg/SETUP1/rus/SETUP1-FFmpeg-features-train.jsonl" \
     -commit_train_set "dataset/FFmpeg/SETUP1/rus/SETUP1-FFmpeg-simcom-train.jsonl" \
@@ -12,7 +15,7 @@ defectguard training \
     -repo_language C  \
     -epoch 30
 
-defectguard training \
+python3 -m defectguard.cli training  \
     -model simcom \
     -feature_train_set "dataset/FFmpeg/SETUP2/rus/SETUP2-FFmpeg-features-train.jsonl" \
     -commit_train_set "dataset/FFmpeg/SETUP2/rus/SETUP2-FFmpeg-simcom-train.jsonl" \
@@ -24,7 +27,7 @@ defectguard training \
     -repo_language C \
     -epoch 30
     
-defectguard training \
+python3 -m defectguard.cli training  \
     -model simcom \
     -feature_train_set "dataset/FFmpeg/SETUP3/rus/SETUP3-FFmpeg-features-train.jsonl" \
     -commit_train_set "dataset/FFmpeg/SETUP3/rus/SETUP3-FFmpeg-simcom-train.jsonl" \
@@ -36,7 +39,7 @@ defectguard training \
     -repo_language C \
     -epoch 30
 
-defectguard evaluating \
+python3 -m defectguard.cli evaluating \
     -model simcom \
     -feature_test_set "dataset/FFmpeg/SETUP1/SETUP1-FFmpeg-features-test.jsonl" \
     -commit_test_set "dataset/FFmpeg/SETUP1/SETUP1-FFmpeg-simcom-val.jsonl" \
@@ -46,7 +49,7 @@ defectguard evaluating \
     -device cuda \
     -repo_language C
 
-defectguard evaluating \
+python3 -m defectguard.cli evaluating \
     -model simcom \
     -feature_test_set "dataset/FFmpeg/SETUP2/SETUP2-FFmpeg-features-test.jsonl" \
     -commit_test_set "dataset/FFmpeg/SETUP2/SETUP2-FFmpeg-simcom-val.jsonl" \
@@ -56,7 +59,7 @@ defectguard evaluating \
     -device cuda \
     -repo_language C
 
-defectguard evaluating \
+python3 -m defectguard.cli evaluating \
     -model simcom \
     -feature_test_set "dataset/FFmpeg/SETUP3/SETUP3-FFmpeg-features-test.jsonl" \
     -commit_test_set "dataset/FFmpeg/SETUP3/SETUP3-FFmpeg-simcom-val.jsonl" \
