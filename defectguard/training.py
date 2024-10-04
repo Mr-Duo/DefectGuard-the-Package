@@ -189,10 +189,9 @@ def training_deep_learning(model, params, dg_cache_path):
                 if early_stop_count < 0:
                     break
         else:
-            loss_score = total_loss.item()
-            print(loss_score < smallest_loss, loss_score, smallest_loss)
-            if loss_score < smallest_loss:
-                smallest_loss = loss_score
+            print(total_loss < smallest_loss, total_loss, smallest_loss)
+            if total_loss < smallest_loss:
+                smallest_loss = total_loss
                 print('Save a better model', smallest_loss)
                 torch.save({
                     'epoch': epoch,
