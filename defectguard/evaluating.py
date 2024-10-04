@@ -125,10 +125,10 @@ def evaluating_machine_learning(pretrain, params, dg_cache_path):
         os.mkdir(f'{dg_cache_path}/save/{params.repo_name}')
 
 
-    if not params.from_pretrain:
-        model.initialize(params.dictionary)
+    if params.from_pretrain:
+        model.initialize()
     else:
-        model.initialize(pretrain=f'{dg_cache_path}/save/{params.repo_name}/{pretrain}')
+        model.initialize(pretrain=f'{dg_cache_path}/save/{params.repo_name}/{pretrain}', dictionary=params.dictionary)
 
     cols = (
         ["la"]
