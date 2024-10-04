@@ -103,5 +103,8 @@ class DeepJIT(BaseWraper):
         if not os.path.isdir(save_dir):       
             os.makedirs(save_dir)
         
-        save_path = f"{save_dir}/deepjit.pt"
+        save_path = f"{save_dir}/deepjit.pth"
         torch.save(self.model.state_dict(), save_path)
+    
+    def load_state_dict(self, state_dict):
+        self.model.load_state_dict(state_dict)

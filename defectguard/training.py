@@ -195,7 +195,7 @@ def training_deep_learning(model, params, dg_cache_path):
                 print('Save a better model', smallest_loss)
                 torch.save({
                     'epoch': epoch,
-                    'model_state_dict': model.state_dict(),
+                    'model_state_dict': model.model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
                     'loss': loss.item(),
                 }, model_save_path)

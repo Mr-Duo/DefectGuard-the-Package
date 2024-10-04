@@ -134,3 +134,6 @@ class SimCom(BaseWraper):
             self.initialize()
             
         return self.sim.predict_proba(test)
+    
+    def load_state_dict(self, state_dict):
+        self.com.load_state_dict(state_dict)
