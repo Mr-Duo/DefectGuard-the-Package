@@ -49,9 +49,11 @@ class DeepJIT(BaseWraper):
         # Create model and Load pretrain
         self.model = DeepJITModel(self.hyperparameters).to(device=self.device)
         if from_pretrain and dictionary is None:
-            self.model.load_state_dict(torch.load(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}", map_location=self.device))
+            checkpoint = torch.load(f"{SRC_PATH}/models/metadata/{self.model_name}/{self.language}", map_location=self.device)
+            self.model.load_state_dict(checkpoint['model_state_dict'])
         elif state_dict:
-            self.model.load_state_dict(torch.load(state_dict, map_location=self.device))
+            checkpoint = torch.load(state_dict, map_location=self.device)
+            self.model.load_state_dict(checkpoint['model_state_dict'])
 
         # Set initialized to True
         self.initialized = True
