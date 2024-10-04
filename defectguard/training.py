@@ -148,7 +148,7 @@ def training_deep_learning(model, params, dg_cache_path):
             
             loss = criterion(predict, labels)
             loss.backward()
-            total_loss += loss
+            total_loss += loss.item()
             optimizer.step()
 
         print(f'Training: Epoch {epoch} / {params.epochs} -- Total loss: {total_loss}')
