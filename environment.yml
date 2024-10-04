@@ -1,4 +1,4 @@
-name: gpu_env
+name: defectguard
 channels:
   - defaults
   - conda-forge
@@ -7,7 +7,7 @@ channels:
 
 dependencies:
   - python=3.11   # Latest version of Python
-  - cudatoolkit=12.4  # CUDA toolkit for GPU access
+  - cudatoolkit=11.8  # CUDA toolkit for GPU access
   - pip
   - pip:
       - gdown==5.1.0
