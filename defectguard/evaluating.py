@@ -14,6 +14,7 @@ from .utils.logger import logger, logs
 from .utils.utils import yield_jsonl, open_jsonl
 from tqdm import tqdm
 import pandas as pd
+import numpy as np
 from sklearn.metrics import roc_auc_score, accuracy_score, recall_score, f1_score, precision_score
 from datetime import datetime
 
