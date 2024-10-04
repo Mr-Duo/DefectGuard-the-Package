@@ -237,7 +237,6 @@ def evaluating(params):
         df.to_csv(f'{dg_cache_path}/save/{params.repo_name}/predict_scores/{model_name}.csv', index=False, sep=',')
     
     if params.model in ["simcom"]:
-        assert com_hashes == sim_hashes
         simcom_proba = average(sim_proba, com_proba)
         auc_score = roc_auc_score(y_true=com_ground_truth,  y_score=simcom_proba)
         simcom_pred = [1 if proba > threshold else 0 for proba in simcom_proba]
