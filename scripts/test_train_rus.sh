@@ -42,7 +42,7 @@ mkdir SETUP1/rus SETUP2/rus SETUP3/rus SETUP4/rus SETUP5/rus
 # python3 -m defectguard.cli evaluating \
 #     -model simcom \
 #     -feature_test_set "dataset/FFmpeg/SETUP1/SETUP1-FFmpeg-features-test.jsonl" \
-#     -commit_test_set "dataset/FFmpeg/SETUP1/SETUP1-FFmpeg-simcom-val.jsonl" \
+#     -commit_test_set "dataset/FFmpeg/SETUP1/SETUP1-FFmpeg-simcom-test.jsonl" \
 #     -dictionary "dataset/FFmpeg/SETUP1/dict-FFmpeg.jsonl" \
 #     -dg_save_folder SETUP1/rus \
 #     -repo_name FFmpeg \
@@ -52,7 +52,7 @@ mkdir SETUP1/rus SETUP2/rus SETUP3/rus SETUP4/rus SETUP5/rus
 # python3 -m defectguard.cli evaluating \
 #     -model simcom \
 #     -feature_test_set "dataset/FFmpeg/SETUP2/SETUP2-FFmpeg-features-test.jsonl" \
-#     -commit_test_set "dataset/FFmpeg/SETUP2/SETUP2-FFmpeg-simcom-val.jsonl" \
+#     -commit_test_set "dataset/FFmpeg/SETUP2/SETUP2-FFmpeg-simcom-test.jsonl" \
 #     -dictionary "dataset/FFmpeg/SETUP2/dict-FFmpeg.jsonl" \
 #     -dg_save_folder SETUP2/rus \
 #     -repo_name FFmpeg \
@@ -62,7 +62,7 @@ mkdir SETUP1/rus SETUP2/rus SETUP3/rus SETUP4/rus SETUP5/rus
 # python3 -m defectguard.cli evaluating \
 #     -model simcom \
 #     -feature_test_set "dataset/FFmpeg/SETUP3/SETUP3-FFmpeg-features-test.jsonl" \
-#     -commit_test_set "dataset/FFmpeg/SETUP3/SETUP3-FFmpeg-simcom-val.jsonl" \
+#     -commit_test_set "dataset/FFmpeg/SETUP3/SETUP3-FFmpeg-simcom-test.jsonl" \
 #     -dictionary "dataset/FFmpeg/SETUP3/dict-FFmpeg.jsonl" \
 #     -dg_save_folder SETUP3/rus \
 #     -repo_name FFmpeg \
@@ -84,8 +84,8 @@ python3 -m defectguard.cli training  \
 python3 -m defectguard.cli evaluating \
     -model simcom \
     -feature_test_set "dataset/FFmpeg/SETUP4/SETUP4-FFmpeg-features-test.jsonl" \
-    -commit_test_set "dataset/FFmpeg/SETUP4/SETUP4-FFmpeg-simcom-val.jsonl" \
-    -dictionary "dataset/FFmpeg/SETUP4/dict-FFmpeg.jsonl" \
+    -commit_test_set "dataset/FFmpeg/SETUP4/SETUP4-FFmpeg-simcom-test.jsonl" \
+    -dictionary "dataset/FFmpeg/SETUP3/dict-FFmpeg.jsonl" \
     -dg_save_folder SETUP4/rus \
     -repo_name FFmpeg \
     -device cuda \
@@ -106,8 +106,8 @@ python3 -m defectguard.cli training  \
 python3 -m defectguard.cli evaluating \
     -model simcom \
     -feature_test_set "dataset/FFmpeg/SETUP5/SETUP5-FFmpeg-features-test.jsonl" \
-    -commit_test_set "dataset/FFmpeg/SETUP5/SETUP5-FFmpeg-simcom-val.jsonl" \
-    -dictionary "dataset/FFmpeg/SETUP5/dict-FFmpeg.jsonl" \
+    -commit_test_set "dataset/FFmpeg/SETUP5/SETUP5-FFmpeg-simcom-test.jsonl" \
+    -dictionary "dataset/FFmpeg/SETUP3/dict-FFmpeg.jsonl" \
     -dg_save_folder SETUP5/rus \
     -repo_name FFmpeg \
     -device cuda \
