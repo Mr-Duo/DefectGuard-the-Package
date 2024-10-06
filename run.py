@@ -1,21 +1,25 @@
 import numpy as np
 import pandas as pd
-import sklearn
+# from sklearn.svm import LinearSVC
 from sklearn.datasets import load_svmlight_file
-from sklearn.svm import LinearSVC
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, roc_auc_score
 from scipy.sparse import csr_matrix
 import re, os, pickle
 
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.gaussian_process import GaussianProcessClassifier
-from sklearn.gaussian_process.kernels import RBF
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.neural_network import MLPClassifier
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+import cuml
+import cudf
+import numpy as np
+from cuml.svm import LinearSVC
+
+# from sklearn.neighbors import KNeighborsClassifier
+# from sklearn.svm import SVC
+# from sklearn.gaussian_process import GaussianProcessClassifier
+# from sklearn.gaussian_process.kernels import RBF
+# from sklearn.tree import DecisionTreeClassifier
+# from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+# from sklearn.naive_bayes import GaussianNB
+# from sklearn.neural_network import MLPClassifier
+# from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
   
 def get_commit_id_list(file):
     commit_id_list = list()
@@ -29,13 +33,15 @@ def get_commit_id_list(file):
 def load_data(train_file, test_file):
     print("\tStart load")
     (Xgt_train, Ygt_train) = load_svmlight_file(train_file, dtype=bool)
-    #Ground Truth Test Data
     (Xgt_test, Ygt_test) = load_svmlight_file(test_file, dtype=bool)
     
     max_features_all_files = max( Xgt_train.shape[1], Xgt_test.shape[1])
 
-    Xgt_train = csr_matrix( Xgt_train, shape=(Xgt_train.shape[0], max_features_all_files ) )
-    Xgt_test = csr_matrix( Xgt_test, shape = (Xgt_test.shape[0], max_features_all_files ) )
+    Xgt_train_cuml = cuml.sparse.csr_matrix(Xgt_train, shape=(Xgt_train.shape[0], max_features_all_files))
+    Xgt_test_cuml = cuml.sparse.csr_matrix(Xgt_test, shape=(Xgt_test.shape[0], max_features_all_files))
+    
+    Ygt_train_cudf = cudf.Series(Ygt_train)
+    Ygt_test_cudf = cudf.Series(Ygt_test)
     print("\tDone load")
     return Xgt_train, Ygt_train, Xgt_test, Ygt_test
 
@@ -44,8 +50,8 @@ def run(train_file, test_file):
     
     print("\tStart train")
     params_weighted={"max_iter":200000,"class_weight":{0: 1,1: 100}}
-    classif = LinearSVC()
-    classif.set_params(**params_weighted)
+    classif = LinearSVC(**params_weighted)
+
     classif.fit(Xgt_train, Ygt_train)
     print("\tDone train")
     
