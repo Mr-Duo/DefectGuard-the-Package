@@ -241,9 +241,9 @@ def evaluating(params):
         simcom_proba = average(sim_proba, com_proba)
         auc_score = roc_auc_score(y_true=com_ground_truth,  y_score=simcom_proba)
         simcom_pred = [1 if proba > threshold else 0 for proba in simcom_proba]
-        f1 = f1_score(y_true=com_ground_truth,  y_score=simcom_pred)
-        acc = accuracy_score(y_true=com_ground_truth,  y_score=simcom_pred)
-        rc = recall_score(y_true=com_ground_truth,  y_score=simcom_pred)
+        f1 = f1_score(y_true=com_ground_truth,  y_pred=simcom_pred)
+        acc = accuracy_score(y_true=com_ground_truth,  y_pred=simcom_pred)
+        rc = recall_score(y_true=com_ground_truth,  y_pred=simcom_pred)
         prc = precision_score(y_true=com_ground_truth, y_pred=simcom_pred)
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/auc.csv', params.repo_name, auc_score, params.model)
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/f1.csv', params.repo_name, f1, model_name)
