@@ -127,8 +127,10 @@ def evaluating_machine_learning(pretrain, params, dg_cache_path):
 
     if params.from_pretrain:
         model.initialize()
-    else:
+    elif model.model_name == "simcom":
         model.initialize(pretrain=f'{dg_cache_path}/save/{params.repo_name}/{pretrain}', dictionary=params.dictionary)
+    else:
+        model.initialize(pretrain=f'{dg_cache_path}/save/{params.repo_name}/{pretrain}')
 
     cols = (
         ["la"]

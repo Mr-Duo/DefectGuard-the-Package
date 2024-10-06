@@ -11,7 +11,7 @@ for i in "${sampling[@]}"; do
     for j in "${setup[@]}"; do
         for k in "${model[@]}"; do
             echo "Train $k $j with $i"
-            python3 -m defectguard.cli evaluating \
+            python3 -m defectguard.cli training \
                 -model $k \
                 -feature_test_set "dataset/FFmpeg/$j/$j-FFmpeg-features-test.jsonl" \
                 -commit_test_set "dataset/FFmpeg/$j/$j-FFmpeg-simcom-test.jsonl" \
