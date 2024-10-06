@@ -3,7 +3,7 @@
 # Predefined lists
 setup=("SETUP1" "SETUP2" "SETUP3" "SETUP4" "SETUP5")
 sampling=("rus" "unsampling" "ros")
-model=("tlel", "lapredict", "lr")
+model=("tlel" "lapredict" "lr")
 
 # Nested loop
 echo "Nested loop processing:"
