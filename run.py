@@ -4,7 +4,6 @@ import sklearn
 from sklearn.datasets import load_svmlight_file
 from sklearn.svm import LinearSVC
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, roc_auc_score
-import matplotlib.pyplot as plt
 from scipy.sparse import csr_matrix
 import re, os, pickle
 
@@ -77,12 +76,14 @@ if __name__ == "__main__":
             train_file = f"data\FFmpeg\{setup}\{sampling}\{setup}-FFmpeg-features-train.libsvm"
             test_file = f"data\FFmpeg\{setup}\{setup}-FFmpeg-features-test.libsvm"
             out_df, score_df, classif = run(train_file, test_file)
+            print(train_file)
+            print(test_file)
             out_df.to_csv(f"{setup}/{sampling}/dg_cache/save/FFmpeg/predict_scores/vccfinder.csv", index=False)
             score_df.to_csv(f"{setup}/{sampling}/dg_cache/save/FFmpeg/results/results.csv", index=False)
             
             with open(f"{setup}/{sampling}/dg_cache/save/FFmpeg/vccfinder.pkl", "wb") as f:
                 pickle.dump(classif, f)
-
+            print("*******************************************")
     # names = ["Nearest Neighbors", "Linear SVM", "RBF SVM",
     #         "Decision Tree",
     #         "Random Forest_depth5__10",
