@@ -73,8 +73,8 @@ if __name__ == "__main__":
     for setup in ["SETUP1", "SETUP2", "SETUP3", "SETUP4", "SETUP5"]:
         for sampling in ["rus", "unsampling", "ros"]:
             print(f"{setup} - {sampling}: ")
-            train_file = f"data\FFmpeg\{setup}\{sampling}\{setup}-FFmpeg-features-train.libsvm"
-            test_file = f"data\FFmpeg\{setup}\{setup}-FFmpeg-features-test.libsvm"
+            train_file = f"dataset/FFmpeg/{setup}/{sampling}/{setup}-FFmpeg-features-train.libsvm"
+            test_file = f"dataset/FFmpeg/{setup}/{setup}-FFmpeg-features-test.libsvm"
             out_df, score_df, classif = run(train_file, test_file)
             print(train_file)
             print(test_file)
