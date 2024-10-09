@@ -15,7 +15,16 @@ from .utils.utils import yield_jsonl, open_jsonl
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
-from sklearn.metrics import roc_auc_score, accuracy_score, recall_score, f1_score, precision_score
+from sklearn.metrics import (
+    roc_auc_score, 
+    accuracy_score, 
+    f1_score, 
+    precision_score, 
+    recall_score, 
+    matthews_corrcoef, 
+    precision_recall_curve, 
+    auc
+)
 from datetime import datetime
 
 def init_model(model_name, language, device):
@@ -181,14 +190,25 @@ def average(proba_1, proba_2):
         raise ValueError("Both lists must be of the same length")
     return [(x + y) / 2 for x, y in zip(proba_1, proba_2)]
 
+def metrics(ground_truth, probability, threshold=0.5):
+    roc_auc = roc_auc_score(y_true=ground_truth,  y_score=probability)
+    precision, recall, _ = precision_recall_curve(y_true=ground_truth, probabilitys_pred=probability)
+    pr_auc = auc(recall, precision)
+    
+    predict = [1 if proba > threshold else 0 for proba in probability]
+    f1 = f1_score(y_true=ground_truth, y_pred=predict)
+    accuracy = accuracy_score(y_true=ground_truth, y_pred=predict)
+    recall = recall_score(y_true=ground_truth, y_pred=predict)
+    precision = precision_score(y_true=ground_truth, y_pred=predict)
+        
+    return roc_auc, pr_auc, f1, accuracy, recall, precision
+
 def evaluating(params):
     # create save folders
     dg_cache_path = f"{params.dg_save_folder}/dg_cache"
     folders = ["save", "repo", "dataset"]
     predict_score_path = f'{dg_cache_path}/save/{params.repo_name}/predict_scores/'
     resutl_path = f'{dg_cache_path}/save/{params.repo_name}/results/'
-
-    threshold = 0.5
 
     if not os.path.exists(dg_cache_path):
         os.mkdir(dg_cache_path)
@@ -204,18 +224,14 @@ def evaluating(params):
         model_name = params.model if params.model != "simcom" else "com"
         pretrain = get_pretrain(model_name)
         com_hashes, com_proba, com_ground_truth = evaluating_deep_learning(pretrain, params, dg_cache_path)
-        sim_auc_score = roc_auc_score(y_true=com_ground_truth,  y_score=com_proba)
-        com_pred = [1 if proba > threshold else 0 for proba in com_proba]
-        sim_f1_score = f1_score(y_true=com_ground_truth, y_pred=com_pred)
-        sim_accuracy = accuracy_score(y_true=com_ground_truth, y_pred=com_pred)
-        sim_recall = recall_score(y_true=com_ground_truth, y_pred=com_pred)
-        sim_precision = precision_score(y_true=com_ground_truth, y_pred=com_pred)
+        com_roc_auc, com_pr_auc, com_f1, com_accuracy, com_recall, com_precision = metrics(com_ground_truth, com_proba)
 
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/auc.csv', params.repo_name, sim_auc_score, model_name)
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/f1.csv', params.repo_name, sim_f1_score, model_name)
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/acc.csv', params.repo_name, sim_accuracy, model_name)
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/rc.csv', params.repo_name, sim_recall, model_name)
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/prc.csv', params.repo_name, sim_precision, model_name)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/roc_auc.csv', params.repo_name, com_roc_auc, model_name)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/pr_auc.csv', params.repo_name, com_pr_auc, model_name)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/f1.csv', params.repo_name, com_f1, model_name)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/acc.csv', params.repo_name, com_accuracy, model_name)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/rc.csv', params.repo_name, com_recall, model_name)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/prc.csv', params.repo_name, com_precision, model_name)
         df = pd.DataFrame({'commit_hash': com_hashes, 'label': com_ground_truth, 'pred': com_proba})
         df.to_csv(f'{dg_cache_path}/save/{params.repo_name}/predict_scores/{model_name}.csv', index=False, sep=',')
 
@@ -223,32 +239,24 @@ def evaluating(params):
         model_name = params.model if params.model != "simcom" else "sim"
         pretrain = get_pretrain(model_name)
         sim_hashes, sim_proba, sim_ground_truth = evaluating_machine_learning(pretrain, params, dg_cache_path)
-        com_auc_score = roc_auc_score(y_true=sim_ground_truth,  y_score=sim_proba)
-        sim_pred = [1 if proba > threshold else 0 for proba in sim_proba]
-        com_f1_score = f1_score(y_true=sim_ground_truth, y_pred=sim_pred)
-        com_accuracy = accuracy_score(y_true=sim_ground_truth, y_pred=sim_pred)
-        com_recall = recall_score(y_true=sim_ground_truth, y_pred=sim_pred)
-        com_precision = precision_score(y_true=sim_ground_truth, y_pred=sim_pred)
+        sim_roc_auc, sim_pr_auc, sim_f1, sim_accuracy, sim_recall, sim_precision = metrics(sim_ground_truth, sim_proba)
 
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/auc.csv', params.repo_name, com_auc_score, model_name)
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/f1.csv', params.repo_name, com_f1_score, model_name)
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/acc.csv', params.repo_name, com_accuracy, model_name)
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/rc.csv', params.repo_name, com_recall, model_name)
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/prc.csv', params.repo_name, com_precision, model_name)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/roc_auc.csv', params.repo_name, sim_roc_auc, model_name)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/pr_auc.csv', params.repo_name, sim_pr_auc, model_name)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/f1.csv', params.repo_name, sim_f1, model_name)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/acc.csv', params.repo_name, sim_accuracy, model_name)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/rc.csv', params.repo_name, sim_recall, model_name)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/prc.csv', params.repo_name, sim_precision, model_name)
         df = pd.DataFrame({'commit_hash': sim_hashes, 'label': sim_ground_truth, 'pred': sim_proba})
         df.to_csv(f'{dg_cache_path}/save/{params.repo_name}/predict_scores/{model_name}.csv', index=False, sep=',')
     
     if params.model in ["simcom"]:
         assert com_hashes == sim_hashes
         simcom_proba = average(sim_proba, com_proba)
-        auc_score = roc_auc_score(y_true=com_ground_truth,  y_score=simcom_proba)
-        simcom_pred = [1 if proba > threshold else 0 for proba in simcom_proba]
-        f1 = f1_score(y_true=com_ground_truth,  y_pred=simcom_pred)
-        acc = accuracy_score(y_true=com_ground_truth,  y_pred=simcom_pred)
-        rc = recall_score(y_true=com_ground_truth,  y_pred=simcom_pred)
-        prc = precision_score(y_true=com_ground_truth, y_pred=simcom_pred)
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/auc.csv', params.repo_name, auc_score, params.model)
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/f1.csv', params.repo_name, f1, model_name)
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/acc.csv', params.repo_name, acc, model_name)
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/rc.csv', params.repo_name, rc, model_name)
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/prc.csv', params.repo_name, prc, model_name)
+        roc_auc, pr_auc, f1, accuracy, recall, precision = metrics(com_ground_truth, simcom_proba)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/roc_auc.csv', params.repo_name, roc_auc, params.model)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/pr_auc.csv', params.repo_name, pr_auc, params.model)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/f1.csv', params.repo_name, f1, params.model)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/acc.csv', params.repo_name, accuracy, params.model)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/rc.csv', params.repo_name, recall, params.model)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/prc.csv', params.repo_name, precision, params.model)
