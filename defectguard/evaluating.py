@@ -192,7 +192,7 @@ def average(proba_1, proba_2):
 
 def metrics(ground_truth, probability, threshold=0.5):
     roc_auc = roc_auc_score(y_true=ground_truth,  y_score=probability)
-    precision, recall, _ = precision_recall_curve(y_true=ground_truth, probabilitys_pred=probability)
+    precision, recall, _ = precision_recall_curve(y_true=ground_truth, probas_pred=probability)
     pr_auc = auc(recall, precision)
     
     predict = [1 if proba > threshold else 0 for proba in probability]
