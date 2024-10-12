@@ -201,7 +201,7 @@ def metrics(ground_truth, probability, threshold=0.5):
     recall = recall_score(y_true=ground_truth, y_pred=predict)
     precision = precision_score(y_true=ground_truth, y_pred=predict)
         
-    return roc_auc, pr_auc, f1, accuracy, recall, precision
+    return predict, roc_auc, pr_auc, f1, accuracy, recall, precision
 
 def evaluating(params):
     # create save folders
@@ -224,7 +224,7 @@ def evaluating(params):
         model_name = params.model if params.model != "simcom" else "com"
         pretrain = get_pretrain(model_name)
         com_hashes, com_proba, com_ground_truth = evaluating_deep_learning(pretrain, params, dg_cache_path)
-        com_roc_auc, com_pr_auc, com_f1, com_accuracy, com_recall, com_precision = metrics(com_ground_truth, com_proba)
+        com_preds, com_roc_auc, com_pr_auc, com_f1, com_accuracy, com_recall, com_precision = metrics(com_ground_truth, com_proba)
 
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/roc_auc.csv', params.repo_name, com_roc_auc, model_name)
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/pr_auc.csv', params.repo_name, com_pr_auc, model_name)
@@ -232,14 +232,14 @@ def evaluating(params):
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/acc.csv', params.repo_name, com_accuracy, model_name)
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/rc.csv', params.repo_name, com_recall, model_name)
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/prc.csv', params.repo_name, com_precision, model_name)
-        df = pd.DataFrame({'commit_hash': com_hashes, 'label': com_ground_truth, 'pred': com_proba})
+        df = pd.DataFrame({'commit_hash': com_hashes, 'label': com_ground_truth, 'proba': com_proba, 'pred': com_preds})
         df.to_csv(f'{dg_cache_path}/save/{params.repo_name}/predict_scores/{model_name}.csv', index=False, sep=',')
 
     if params.model in ["lapredict", "lr", "tlel", "simcom"]:
         model_name = params.model if params.model != "simcom" else "sim"
         pretrain = get_pretrain(model_name)
         sim_hashes, sim_proba, sim_ground_truth = evaluating_machine_learning(pretrain, params, dg_cache_path)
-        sim_roc_auc, sim_pr_auc, sim_f1, sim_accuracy, sim_recall, sim_precision = metrics(sim_ground_truth, sim_proba)
+        sim_preds, sim_roc_auc, sim_pr_auc, sim_f1, sim_accuracy, sim_recall, sim_precision = metrics(sim_ground_truth, sim_proba)
 
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/roc_auc.csv', params.repo_name, sim_roc_auc, model_name)
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/pr_auc.csv', params.repo_name, sim_pr_auc, model_name)
@@ -247,13 +247,13 @@ def evaluating(params):
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/acc.csv', params.repo_name, sim_accuracy, model_name)
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/rc.csv', params.repo_name, sim_recall, model_name)
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/prc.csv', params.repo_name, sim_precision, model_name)
-        df = pd.DataFrame({'commit_hash': sim_hashes, 'label': sim_ground_truth, 'pred': sim_proba})
+        df = pd.DataFrame({'commit_hash': sim_hashes, 'label': sim_ground_truth, 'proba': sim_proba, 'pred': sim_preds})
         df.to_csv(f'{dg_cache_path}/save/{params.repo_name}/predict_scores/{model_name}.csv', index=False, sep=',')
     
     if params.model in ["simcom"]:
         assert com_hashes == sim_hashes
         simcom_proba = average(sim_proba, com_proba)
-        roc_auc, pr_auc, f1, accuracy, recall, precision = metrics(com_ground_truth, simcom_proba)
+        preds, roc_auc, pr_auc, f1, accuracy, recall, precision = metrics(com_ground_truth, simcom_proba)
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/roc_auc.csv', params.repo_name, roc_auc, params.model)
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/pr_auc.csv', params.repo_name, pr_auc, params.model)
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/f1.csv', params.repo_name, f1, params.model)

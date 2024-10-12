@@ -170,7 +170,7 @@ def training_deep_learning(model, params, dg_cache_path):
 
             auc_score = roc_auc_score(y_true=all_label,  y_score=all_predict)
             auc_pc_score = auc_pc(all_label, all_predict)
-            print('Valid data -- AUC-ROC score:', auc_score,  ' -- AUC-PC score:', auc_pc_score)
+            print('Valid data -- ROC-AUC score:', auc_score,  ' -- PC-AUC score:', auc_pc_score)
 
             valid_score = auc_pc_score
             if valid_score > best_valid_score:

@@ -42,7 +42,7 @@ mkdir SETUP1/ros SETUP2/ros SETUP3/ros SETUP4/ros SETUP5/ros
 # python3 -m defectguard.cli evaluating \
 #     -model deepjit \
 #     -feature_test_set "dataset/FFmpeg/SETUP1/SETUP1-FFmpeg-features-test.jsonl" \
-#     -commit_test_set "dataset/FFmpeg/SETUP1/SETUP1-FFmpeg-deepjit-val.jsonl" \
+#     -commit_test_set "dataset/FFmpeg/SETUP1/SETUP1-FFmpeg-deepjit-test.jsonl" \
 #     -dictionary "dataset/FFmpeg/SETUP1/dict-FFmpeg.jsonl" \
 #     -dg_save_folder SETUP1/ros \
 #     -repo_name FFmpeg \
@@ -84,8 +84,8 @@ python3 -m defectguard.cli training  \
 python3 -m defectguard.cli evaluating \
     -model deepjit \
     -feature_test_set "dataset/FFmpeg/SETUP4/SETUP4-FFmpeg-features-test.jsonl" \
-    -commit_test_set "dataset/FFmpeg/SETUP4/SETUP4-FFmpeg-deepjit-val.jsonl" \
-    -dictionary "dataset/FFmpeg/SETUP4/dict-FFmpeg.jsonl" \
+    -commit_test_set "dataset/FFmpeg/SETUP4/SETUP4-FFmpeg-deepjit-test.jsonl" \
+    -dictionary "dataset/FFmpeg/SETUP3/dict-FFmpeg.jsonl" \
     -dg_save_folder SETUP4/ros \
     -repo_name FFmpeg \
     -device cuda \
@@ -106,8 +106,8 @@ python3 -m defectguard.cli training  \
 python3 -m defectguard.cli evaluating \
     -model deepjit \
     -feature_test_set "dataset/FFmpeg/SETUP5/SETUP5-FFmpeg-features-test.jsonl" \
-    -commit_test_set "dataset/FFmpeg/SETUP5/SETUP5-FFmpeg-deepjit-val.jsonl" \
-    -dictionary "dataset/FFmpeg/SETUP5/dict-FFmpeg.jsonl" \
+    -commit_test_set "dataset/FFmpeg/SETUP5/SETUP5-FFmpeg-deepjit-test.jsonl" \
+    -dictionary "dataset/FFmpeg/SETUP3/dict-FFmpeg.jsonl" \
     -dg_save_folder SETUP5/ros \
     -repo_name FFmpeg \
     -device cuda \
