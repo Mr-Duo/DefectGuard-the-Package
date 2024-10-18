@@ -2,6 +2,7 @@ import os, torch, pickle
 from torch.utils.data import Dataset, DataLoader
 from typing import List, Dict
 import torch.nn as nn
+import torchvision
 from .models import (
     DeepJIT,
     CC2Vec,
@@ -116,7 +117,7 @@ def training_deep_learning(model, params, dg_cache_path):
         del val_data
     
     optimizer = torch.optim.Adam(model.get_parameters(), lr=params.learning_rate)
-    criterion = nn.BCELoss()
+    # criterion = nn.BCELoss()
 
     # Validate
     best_valid_score = 0
@@ -146,7 +147,8 @@ def training_deep_learning(model, params, dg_cache_path):
             predict = model(message, code)
             # ------------------------------------------------------------------
             
-            loss = criterion(predict, labels)
+            # loss = criterion(predict, labels)
+            loss = torchvision.ops.sigmoid_focal_loss(inputs=predict, targets=labels)
             loss.backward()
             total_loss = loss.item()
             optimizer.step()
