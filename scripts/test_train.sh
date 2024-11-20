@@ -1,115 +1,73 @@
 #!/bin/bash
 
-mkdir focal_loss
-mkdir focal_loss/SETUP1 focal_loss/SETUP2 focal_loss/SETUP3 focal_loss/SETUP4 focal_loss/SETUP5
-mkdir focal_loss/SETUP1/unsampling focal_loss/SETUP2/unsampling focal_loss/SETUP3/unsampling focal_loss/SETUP4/unsampling focal_loss/SETUP5/unsampling
+repo="linux"
+sampling="unsampling"
+
+mkdir mkdir SETUP1 SETUP2 SETUP3 SETUP4 SETUP5
+mkdir SETUP1/$sampling SETUP2/$sampling SETUP3/$sampling SETUP4/$sampling SETUP5/$sampling
 
 python3 -m defectguard.cli training  \
     -model simcom \
-    -feature_train_set "dataset/FFmpeg/SETUP1/unsampling/SETUP1-FFmpeg-features-train.jsonl" \
-    -commit_train_set "dataset/FFmpeg/SETUP1/unsampling/SETUP1-FFmpeg-simcom-train.jsonl" \
-    -commit_val_set "dataset/FFmpeg/SETUP1/SETUP1-FFmpeg-simcom-val.jsonl" \
-    -dictionary "dataset/FFmpeg/SETUP1/dict-FFmpeg.jsonl" \
-    -dg_save_folder focal_loss/SETUP1/unsampling \
-    -repo_name FFmpeg \
-    -device cuda \
-    -repo_language C  \
-    -epoch 30
-
-python3 -m defectguard.cli training  \
-    -model simcom \
-    -feature_train_set "dataset/FFmpeg/SETUP2/unsampling/SETUP2-FFmpeg-features-train.jsonl" \
-    -commit_train_set "dataset/FFmpeg/SETUP2/unsampling/SETUP2-FFmpeg-simcom-train.jsonl" \
-    -commit_val_set "dataset/FFmpeg/SETUP2/SETUP2-FFmpeg-simcom-val.jsonl" \
-    -dictionary "dataset/FFmpeg/SETUP2/dict-FFmpeg.jsonl" \
-    -dg_save_folder focal_loss/SETUP2/unsampling \
-    -repo_name FFmpeg \
+    -feature_train_set "dataset/$repo/SETUP2/$sampling/SETUP2-$repo-features-train.jsonl" \
+    -commit_train_set "dataset/$repo/SETUP2/$sampling/SETUP2-$repo-simcom-train.jsonl" \
+    -commit_val_set "dataset/$repo/SETUP2/SETUP2-$repo-simcom-val.jsonl" \
+    -dictionary "dataset/$repo/dict-$repo.jsonl" \
+    -dg_save_folder SETUP2/$sampling \
+    -repo_name $repo \
     -device cuda \
     -repo_language C \
+    -epoch 30
+
+python3 -m defectguard.cli evaluating \
+    -model simcom \
+    -feature_test_set "dataset/$repo/SETUP2/SETUP2-$repo-features-test.jsonl" \
+    -commit_test_set "dataset/$repo/SETUP2/SETUP2-$repo-simcom-test.jsonl" \
+    -dictionary "dataset/$repo/dict-$repo.jsonl" \
+    -dg_save_folder SETUP2/$sampling \
+    -repo_name $repo \
+    -device cuda \
+    -repo_language C
+
+python3 -m defectguard.cli training  \
+    -model simcom \
+    -feature_train_set "dataset/$repo/SETUP1/$sampling/SETUP1-$repo-features-train.jsonl" \
+    -commit_train_set "dataset/$repo/SETUP1/$sampling/SETUP1-$repo-simcom-train.jsonl" \
+    -commit_val_set "dataset/$repo/SETUP1/SETUP1-$repo-simcom-val.jsonl" \
+    -dictionary "dataset/$repo/dict-$repo.jsonl" \
+    -dg_save_folder SETUP1/$sampling \
+    -repo_name $repo \
+    -device cuda \
+    -repo_language C  \
     -epoch 30
     
 python3 -m defectguard.cli training  \
     -model simcom \
-    -feature_train_set "dataset/FFmpeg/SETUP3/unsampling/SETUP3-FFmpeg-features-train.jsonl" \
-    -commit_train_set "dataset/FFmpeg/SETUP3/unsampling/SETUP3-FFmpeg-simcom-train.jsonl" \
-    -commit_val_set "dataset/FFmpeg/SETUP3/SETUP3-FFmpeg-simcom-val.jsonl" \
-    -dictionary "dataset/FFmpeg/SETUP2/dict-FFmpeg.jsonl" \
-    -dg_save_folder focal_loss/SETUP3/unsampling \
-    -repo_name FFmpeg \
+    -feature_train_set "dataset/$repo/SETUP3/$sampling/SETUP3-$repo-features-train.jsonl" \
+    -commit_train_set "dataset/$repo/SETUP3/$sampling/SETUP3-$repo-simcom-train.jsonl" \
+    -commit_val_set "dataset/$repo/SETUP3/SETUP3-$repo-simcom-val.jsonl" \
+    -dictionary "dataset/$repo/dict-$repo.jsonl" \
+    -dg_save_folder SETUP3/$sampling \
+    -repo_name $repo \
     -device cuda \
     -repo_language C \
     -epoch 30
 
 python3 -m defectguard.cli evaluating \
     -model simcom \
-    -feature_test_set "dataset/FFmpeg/SETUP1/SETUP1-FFmpeg-features-test.jsonl" \
-    -commit_test_set "dataset/FFmpeg/SETUP1/SETUP1-FFmpeg-simcom-test.jsonl" \
-    -dictionary "dataset/FFmpeg/SETUP1/dict-FFmpeg.jsonl" \
-    -dg_save_folder focal_loss/SETUP1/unsampling \
-    -repo_name FFmpeg \
+    -feature_test_set "dataset/$repo/SETUP1/SETUP1-$repo-features-test.jsonl" \
+    -commit_test_set "dataset/$repo/SETUP1/SETUP1-$repo-simcom-test.jsonl" \
+    -dictionary "dataset/$repo/dict-$repo.jsonl" \
+    -dg_save_folder SETUP1/$sampling \
+    -repo_name $repo \
     -device cuda \
     -repo_language C
 
 python3 -m defectguard.cli evaluating \
     -model simcom \
-    -feature_test_set "dataset/FFmpeg/SETUP2/SETUP2-FFmpeg-features-test.jsonl" \
-    -commit_test_set "dataset/FFmpeg/SETUP2/SETUP2-FFmpeg-simcom-test.jsonl" \
-    -dictionary "dataset/FFmpeg/SETUP2/dict-FFmpeg.jsonl" \
-    -dg_save_folder focal_loss/SETUP2/unsampling \
-    -repo_name FFmpeg \
-    -device cuda \
-    -repo_language C
-
-python3 -m defectguard.cli evaluating \
-    -model simcom \
-    -feature_test_set "dataset/FFmpeg/SETUP3/SETUP3-FFmpeg-features-test.jsonl" \
-    -commit_test_set "dataset/FFmpeg/SETUP3/SETUP3-FFmpeg-simcom-test.jsonl" \
-    -dictionary "dataset/FFmpeg/SETUP3/dict-FFmpeg.jsonl" \
-    -dg_save_folder focal_loss/SETUP3/unsampling \
-    -repo_name FFmpeg \
-    -device cuda \
-    -repo_language C
-
-python -m defectguard.cli training  \
-    -model simcom \
-    -feature_train_set "dataset/FFmpeg/SETUP4/unsampling/SETUP4-FFmpeg-features-train.jsonl" \
-    -commit_train_set "dataset/FFmpeg/SETUP4/unsampling/SETUP4-FFmpeg-simcom-train.jsonl" \
-    -commit_val_set "dataset/FFmpeg/SETUP4/SETUP4-FFmpeg-simcom-val.jsonl" \
-    -dictionary "dataset/FFmpeg/SETUP2/dict-FFmpeg.jsonl" \
-    -dg_save_folder focal_loss/SETUP4/unsampling \
-    -repo_name FFmpeg \
-    -device cuda \
-    -repo_language C \
-    -epoch 30
-
-python -m defectguard.cli evaluating \
-    -model simcom \
-    -feature_test_set "dataset/FFmpeg/SETUP4/SETUP4-FFmpeg-features-test.jsonl" \
-    -commit_test_set "dataset/FFmpeg/SETUP4/SETUP4-FFmpeg-simcom-val.jsonl" \
-    -dictionary "dataset/FFmpeg/SETUP4/dict-FFmpeg.jsonl" \
-    -dg_save_folder focal_loss/SETUP4/unsampling \
-    -repo_name FFmpeg \
-    -device cuda \
-    -repo_language C
-
-python -m defectguard.cli training  \
-    -model simcom \
-    -feature_train_set "dataset/FFmpeg/SETUP5/unsampling/SETUP5-FFmpeg-features-train.jsonl" \
-    -commit_train_set "dataset/FFmpeg/SETUP5/unsampling/SETUP5-FFmpeg-simcom-train.jsonl" \
-    -commit_val_set "dataset/FFmpeg/SETUP5/SETUP5-FFmpeg-simcom-val.jsonl" \
-    -dictionary "dataset/FFmpeg/SETUP2/dict-FFmpeg.jsonl" \
-    -dg_save_folder focal_loss/SETUP5/unsampling \
-    -repo_name FFmpeg \
-    -device cuda \
-    -repo_language C \
-    -epoch 30
-
-python3 -m defectguard.cli evaluating \
-    -model simcom \
-    -feature_test_set "dataset/FFmpeg/SETUP5/SETUP5-FFmpeg-features-test.jsonl" \
-    -commit_test_set "dataset/FFmpeg/SETUP5/SETUP5-FFmpeg-simcom-val.jsonl" \
-    -dictionary "dataset/FFmpeg/SETUP5/dict-FFmpeg.jsonl" \
-    -dg_save_folder focal_loss/SETUP5/unsampling \
-    -repo_name FFmpeg \
+    -feature_test_set "dataset/$repo/SETUP3/SETUP3-$repo-features-test.jsonl" \
+    -commit_test_set "dataset/$repo/SETUP3/SETUP3-$repo-simcom-test.jsonl" \
+    -dictionary "dataset/$repo/dict-$repo.jsonl" \
+    -dg_save_folder SETUP3/$sampling \
+    -repo_name $repo \
     -device cuda \
     -repo_language C
