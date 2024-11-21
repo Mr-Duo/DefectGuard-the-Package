@@ -252,6 +252,7 @@ def evaluating(params):
     
     if params.model in ["simcom"]:
         assert sorted(com_hashes) == sorted(sim_hashes)
+        model_name = "simcom"
         simcom_proba = average(sim_proba, com_proba)
         preds, roc_auc, pr_auc, f1, accuracy, recall, precision = metrics(com_ground_truth, simcom_proba)
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/roc_auc.csv', params.repo_name, roc_auc, params.model)
@@ -259,4 +260,6 @@ def evaluating(params):
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/f1.csv', params.repo_name, f1, params.model)
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/acc.csv', params.repo_name, accuracy, params.model)
         logs(f'{dg_cache_path}/save/{params.repo_name}/results/rc.csv', params.repo_name, recall, params.model)
-        logs(f'{dg_cache_path}/save/{params.repo_name}/results/prc.csv', params.repo_name, precision, params.model)
+        logs(f'{dg_cache_path}/save/{params.repo_name}/results/prc.csv', params.repo_name, precision, params.model)        
+        df = pd.DataFrame({'commit_hash': sim_hashes, 'label': sim_ground_truth, 'proba': simcom_proba, 'pred': preds})
+        df.to_csv(f'{dg_cache_path}/save/{params.repo_name}/predict_scores/{model_name}.csv', index=False, sep=',')
