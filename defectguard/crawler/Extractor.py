@@ -3,10 +3,10 @@ import os
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-from features.Kamei14 import *
-from features.VCCFinder import *
-from utils.utils import *
-from Dict import Dict
+from .features.Kamei14 import *
+from .features.VCCFinder import *
+from .utils.utils import *
+from .Dict import Dict
 
 def split_sentence(sentence):
     sentence = sentence.replace('.', ' . ').replace('_', ' ').replace('@', ' @ ')\
@@ -27,7 +27,7 @@ class Extractor:
         self.save_path = f"{DEFAULT_EXTRACTED_OUTPUT}/{self.repo_name}" if params.save_path is None else params.save_path 
 
         if not os.path.exists(self.save_path):
-            os.mkdir(self.save_path)
+            os.makedirs(self.save_path)
     
     def run(self, path: str):
         self.file_path = path
@@ -57,7 +57,7 @@ class Extractor:
                             "commit_id": line[0]["commit_id"],
                             "Repository": self.repo_name
                         }], 
-                        f"{self.save_path}/security-{self.repo_name}.jsonl"
+                        f"{self.save_path}/bugfixes-{self.repo_name}.jsonl"
                     )
             features_extractor.save_state(self.save_path)
         except Exception as e:
@@ -151,55 +151,3 @@ class Extractor:
         pruned_msg_dict = msg_dict.prune(100000)
         pruned_code_dict = code_dict.prune(100000)
         save_jsonl([pruned_msg_dict.get_dict(), pruned_code_dict.get_dict()], f"{self.save_path}/dict-{self.repo_name}.jsonl")   
-
-if __name__ == "__main__":
-    from argparse import Namespace
-    
-    def get_cfg(repo, continue_run):
-        cfg = {
-            "repo_name": repo,
-            "continue_run": continue_run,
-            "save_path": None
-        }
-        cfg = Namespace(**cfg)
-        return cfg
-    
-    def fetch_jsonl_files(root_dir):
-        jsonl_files = []
-        # Traverse the first level of directories
-        for subdir, dirs, files in os.walk(root_dir):
-                # Add .jsonl files in the subdirectories (leaves)
-            jsonl_files += [os.path.join(subdir, file) for file in files if file.endswith('.jsonl')]
-        return jsonl_files
-    
-    def extract_number1(filename):
-        # Regular expression to extract 'number1' from filenames of the format 'a-number1-b-number2.jsonl'
-        match = re.search(r'start-(\d+)-.+\.jsonl', filename)
-        if match:
-            return int(match.group(1))  # Convert number1 to an integer for sorting
-        return None
-
-    def sort_files_by_number1(file_list):
-        # Sort the file list based on 'number1'
-        return sorted(file_list, key=extract_number1)
-
-    # Example usage
-    root_directory = "../ALL_DATA/raw_data"
-    jsonl_files = fetch_jsonl_files(root_directory)
-    print(jsonl_files)
-    jsonl_files = sort_files_by_number1(jsonl_files)
-    print(jsonl_files[0])
-    print(jsonl_files[1])
-    
-    repo = "FFmpeg"
-    cfg = get_cfg(repo, False)
-    ext = Extractor(cfg)
-    print(jsonl_files[0])
-    ext.run(jsonl_files[0])
-    print("==========================================")
-    cfg = get_cfg(repo, True)
-    ext = Extractor(cfg)
-    for i in range(1, len(jsonl_files)):
-        print(jsonl_files[i])
-        ext.run(jsonl_files[i])
-        print("==========================================")

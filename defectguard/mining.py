@@ -1,6 +1,6 @@
 import os
 from .utils.logger import logger
-from .JITCrawler import BasicPipeline
+from .crawler import Pipeline
 from argparse import Namespace
 
 def mining(params):

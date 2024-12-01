@@ -209,7 +209,7 @@ def run(args):
         szz_name = conf['szz_name']
         input_name = args.input_json.rsplit('/', 1)[-1].split('.')[0]
 
-        out_dir = Options.SZZ_OUTPUT
+        out_dir = Options.SZZ_OUTPUT + f"/{args.repo_name}"
         if not os.path.isdir(out_dir):
             os.makedirs(out_dir)
 
@@ -250,6 +250,7 @@ if __name__ == "__main__":
     parser.add_argument('conf_file', type=str, help='/path/to/configuration-file.yml')
     parser.add_argument('repos_dir', type=str, nargs='?', help='/path/to/repo-directory')
     parser.add_argument('num_core', type=int, default=1, help='number of workers, default = 1')
+    parser.add_argument('repo_name', type=str)
     args = parser.parse_args()
 
     if not os.path.isfile(args.input_json):

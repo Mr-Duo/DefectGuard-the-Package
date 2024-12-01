@@ -43,47 +43,47 @@ def sample(input_dataframe: pd.DataFrame, sample_strat, random_state:int = 42) -
     df['commit_id'] = df['commit_id'].fillna('generated')
     return df_sampled
 
-strat = "rus"
-input_file_paths = [
-    "output/dataset/FFmpeg/{}/unsampling/{}-FFmpeg-features-train.jsonl",
-    "output/dataset/FFmpeg/{}/unsampling/{}-FFmpeg-simcom-train.jsonl",
-    "output/dataset/FFmpeg/{}/unsampling/{}-FFmpeg-deepjit-train.jsonl",
-    "output/dataset/FFmpeg/{}/unsampling/{}-FFmpeg-vcc-features-train.jsonl",
-    # "output/dataset/FFmpeg/SETUP5/unsampling/SETUP5-FFmpeg-simcom-train.jsonl",
-    # "output/dataset/FFmpeg/SETUP5/unsampling/SETUP5-FFmpeg-deepjit-train.jsonl",
-]
+# strat = "rus"
+# input_file_paths = [
+#     "output/dataset/FFmpeg/{}/unsampling/{}-FFmpeg-features-train.jsonl",
+#     "output/dataset/FFmpeg/{}/unsampling/{}-FFmpeg-simcom-train.jsonl",
+#     "output/dataset/FFmpeg/{}/unsampling/{}-FFmpeg-deepjit-train.jsonl",
+#     "output/dataset/FFmpeg/{}/unsampling/{}-FFmpeg-vcc-features-train.jsonl",
+#     # "output/dataset/FFmpeg/SETUP5/unsampling/SETUP5-FFmpeg-simcom-train.jsonl",
+#     # "output/dataset/FFmpeg/SETUP5/unsampling/SETUP5-FFmpeg-deepjit-train.jsonl",
+# ]
 
-output_file_paths = [
-    "output/dataset/FFmpeg/{}/{}/{}-FFmpeg-features-train.jsonl",
-    "output/dataset/FFmpeg/{}/{}/{}-FFmpeg-simcom-train.jsonl",
-    "output/dataset/FFmpeg/{}/{}/{}-FFmpeg-deepjit-train.jsonl",
-    "output/dataset/FFmpeg/{}/{}/{}-FFmpeg-vcc-features-train.jsonl",
-    # "output/dataset/FFmpeg/SETUP5/smote/SETUP5-FFmpeg-simcom-train.jsonl",
-    # "output/dataset/FFmpeg/SETUP5/smote/SETUP5-FFmpeg-deepjit-train.jsonl",
-]
+# output_file_paths = [
+#     "output/dataset/FFmpeg/{}/{}/{}-FFmpeg-features-train.jsonl",
+#     "output/dataset/FFmpeg/{}/{}/{}-FFmpeg-simcom-train.jsonl",
+#     "output/dataset/FFmpeg/{}/{}/{}-FFmpeg-deepjit-train.jsonl",
+#     "output/dataset/FFmpeg/{}/{}/{}-FFmpeg-vcc-features-train.jsonl",
+#     # "output/dataset/FFmpeg/SETUP5/smote/SETUP5-FFmpeg-simcom-train.jsonl",
+#     # "output/dataset/FFmpeg/SETUP5/smote/SETUP5-FFmpeg-deepjit-train.jsonl",
+# ]
 
-paths = [
-    f"output/dataset/FFmpeg/SETUP1/{strat}",
-    f"output/dataset/FFmpeg/SETUP2/{strat}",
-    f"output/dataset/FFmpeg/SETUP3/{strat}",
-    f"output/dataset/FFmpeg/SETUP4/{strat}",
-    f"output/dataset/FFmpeg/SETUP5/{strat}",
-]
+# paths = [
+#     f"output/dataset/FFmpeg/SETUP1/{strat}",
+#     f"output/dataset/FFmpeg/SETUP2/{strat}",
+#     f"output/dataset/FFmpeg/SETUP3/{strat}",
+#     f"output/dataset/FFmpeg/SETUP4/{strat}",
+#     f"output/dataset/FFmpeg/SETUP5/{strat}",
+# ]
 
-for path in paths:
-    if not os.path.exists(path):
-        os.makedirs(path)
-for input, output in zip(input_file_paths, output_file_paths):
-    for setup in ["SETUP1", "SETUP2", "SETUP3", "SETUP4", "SETUP5"]:
-        data = list()
-        input_file = input.format(setup, setup)
-        output_file = output.format(setup, strat, setup)
-        for line in load_jsonl(input_file):
-            data.append(line)
+# for path in paths:
+#     if not os.path.exists(path):
+#         os.makedirs(path)
+# for input, output in zip(input_file_paths, output_file_paths):
+#     for setup in ["SETUP1", "SETUP2", "SETUP3", "SETUP4", "SETUP5"]:
+#         data = list()
+#         input_file = input.format(setup, setup)
+#         output_file = output.format(setup, strat, setup)
+#         for line in load_jsonl(input_file):
+#             data.append(line)
 
-        df = pd.DataFrame(data)
-        df_sampled = sample(df, strat)
-        data = df_sampled.to_dict(orient = "records")
-        save_jsonl(data, output_file)
+#         df = pd.DataFrame(data)
+#         df_sampled = sample(df, strat)
+#         data = df_sampled.to_dict(orient = "records")
+#         save_jsonl(data, output_file)
         
-        print(f"{input_file} to {output_file}")
+#         print(f"{input_file} to {output_file}")
