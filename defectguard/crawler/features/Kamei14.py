@@ -6,9 +6,6 @@ from typing import Dict, List, Tuple, Set
 
 from utils.utils import save_json, load_json, DEFAULT_EXTRACTED_OUTPUT
 
-STRONG_VUL = re.compile(r'(?i)(denial.of.service|remote.code.execution|\bopen.redirect|OSVDB|\bXSS\b|\bReDoS\b|\bNVD\b|malicious|x−frame−options|attack|cross.site|exploit|directory.traversal|\bRCE\b|\bdos\b|\bXSRF\b|clickjack|session.fixation|hijack|advisory|insecure|security|\bcross−origin\b|unauthori[z|s]ed|infinite.loop)')
-MEDIUM_VUL =re.compile(r'(?i)(authenticat(e|ion)|bruteforce|bypass|constant.time|crack|credential|\bDoS\b|expos(e|ing)|hack|harden|injection|lockout|overflow|password|\bPoC\b|proof.of.concept|poison|privelage|\b(in)?secur(e|ity)|(de)?serializ|spoof|timing|traversal)')
-
 class Kamei14:
     def __init__(self, logger: logging.Logger):
         self.logger = logger
@@ -142,15 +139,12 @@ class Kamei14:
         return ns, nd, nf
 
     def is_fixing_commit(self, file_message: str) -> int:
-        m = STRONG_VUL.search(file_message)
-        n = MEDIUM_VUL.search(file_message)
-        return 1 if m or n else 0 
-        # bug_keywords = ["fix", "bug", "issue"]
-        # wrong_keywords = ["fix typo", "fix build", "non-fix"]
-        # if any(keyword in file_message for keyword in bug_keywords):
-        #     if not any(keyword in file_message for keyword in wrong_keywords):
-        #         return 1
-        # return 0
+        bug_keywords = ["fix", "bug", "issue"]
+        wrong_keywords = ["fix typo", "fix build", "non-fix"]
+        if any(keyword in file_message for keyword in bug_keywords):
+            if not any(keyword in file_message for keyword in wrong_keywords):
+                return 1
+        return 0
     
     def file_features (self, file_names: List[str]) -> Tuple[int, int, int]:
         ndev, nuc, ages = set(), 0, []
