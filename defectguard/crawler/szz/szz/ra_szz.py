@@ -4,9 +4,9 @@ import os
 import tempfile
 from typing import List, Set
 
-from options import Options
-from szz.ma_szz import MASZZ
-from szz.core.abstract_szz import ImpactedFile, BlameData, DetectLineMoved
+from ..options import Options
+from .ma_szz import MASZZ
+from .core.abstract_szz import ImpactedFile, BlameData, DetectLineMoved
 
 
 class RASZZ(MASZZ):

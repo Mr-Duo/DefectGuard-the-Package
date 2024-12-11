@@ -9,7 +9,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from functools import partial
 from typing import List, Set, Tuple
 from tqdm import tqdm
-from utils.utils import *
+from .utils.utils import *
 
 log = create_console_log_handler("console")
 

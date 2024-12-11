@@ -3,9 +3,9 @@ from typing import List, Set
 from time import time as ts
 from git import Commit
 from pydriller import RepositoryMining, ModificationType
-from szz.common.issue_date import filter_by_date
-from szz.ag_szz import AGSZZ
-from szz.core.abstract_szz import ImpactedFile, DetectLineMoved
+from .common.issue_date import filter_by_date
+from .ag_szz import AGSZZ
+from .core.abstract_szz import ImpactedFile, DetectLineMoved
 
 
 class MASZZ(AGSZZ):

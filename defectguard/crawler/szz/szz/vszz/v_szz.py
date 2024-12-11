@@ -7,8 +7,8 @@ import subprocess
 import json
 
 from git import Commit
-from szz.core.abstract_szz import AbstractSZZ, ImpactedFile
-from szz.common.issue_date import filter_by_date
+from ..core.abstract_szz import AbstractSZZ, ImpactedFile
+from ..common.issue_date import filter_by_date
 
 from pydriller import ModificationType, GitRepository as PyDrillerGitRepo
 import Levenshtein

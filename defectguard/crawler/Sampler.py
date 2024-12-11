@@ -9,7 +9,7 @@ from imblearn.combine import (
     SMOTETomek
 )
 from sklearn.cluster import MiniBatchKMeans
-from utils.utils import *
+from .utils.utils import *
 
 
 def sample(input_dataframe: pd.DataFrame, sample_strat, random_state:int = 42) -> pd.DataFrame:

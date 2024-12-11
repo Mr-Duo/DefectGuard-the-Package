@@ -3,10 +3,10 @@ from typing import List, Set
 import logging as log
 from git import Commit
 
-from szz.aszz.code_block_parser import CodeBlockParser, CodeBlockRange
-from szz.core.abstract_szz import ImpactedFile, LineChangeType
-from szz.ma_szz import MASZZ
-from szz.r_szz import RSZZ
+from .code_block_parser import CodeBlockParser, CodeBlockRange
+from ..core.abstract_szz import ImpactedFile, LineChangeType
+from ..ma_szz import MASZZ
+from ..r_szz import RSZZ
 
 
 class ASZZ(MASZZ):

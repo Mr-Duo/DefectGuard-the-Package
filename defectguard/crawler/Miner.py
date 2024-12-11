@@ -9,9 +9,9 @@ import logging as logger
 import os, shutil
 import heapq
 
-from utils.aggregator import *
-from utils.line_parser import *
-from utils.utils import *
+from .utils.aggregator import *
+from .utils.line_parser import *
+from .utils.utils import *
 
 EXT2LANG = {
     "py": "Python",

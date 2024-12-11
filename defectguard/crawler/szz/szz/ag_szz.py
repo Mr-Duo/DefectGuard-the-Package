@@ -4,8 +4,8 @@ from typing import List, Set
 from time import time as ts
 from git import Commit
 from pydriller import RepositoryMining
-from szz.common.issue_date import filter_by_date
-from szz.core.abstract_szz import AbstractSZZ, ImpactedFile
+from .common.issue_date import filter_by_date
+from .core.abstract_szz import AbstractSZZ, ImpactedFile
 
 
 class AGSZZ(AbstractSZZ):
