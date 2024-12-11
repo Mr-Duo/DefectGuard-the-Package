@@ -14,7 +14,7 @@ from .utils.utils import (
     vsc_output,
     check_threshold,
 )
-from .JITCrawler import BasicPipeline
+from .crawler import Pipeline
 from argparse import Namespace
 
 def init_model(model_name, language, device):

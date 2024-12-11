@@ -5,22 +5,22 @@ import os
 from typing import List
 import yaml
 from typing import Dict
-from szz.ag_szz import AGSZZ
-from szz.aszz.a_szz import ASZZ
-from szz.b_szz import BaseSZZ
-from szz.util.check_requirements import check_requirements
-from szz.dfszz.df_szz import DFSZZ
-from szz.l_szz import LSZZ
-from szz.ma_szz import MASZZ, DetectLineMoved
-from szz.r_szz import RSZZ
-from szz.ra_szz import RASZZ
-from szz.pd_szz import PyDrillerSZZ
-from szz.vszz.v_szz import VSZZ
-from szz.common.issue_date import parse_issue_date
+from .szz.ag_szz import AGSZZ
+from .szz.aszz.a_szz import ASZZ
+from .szz.b_szz import BaseSZZ
+from .szz.util.check_requirements import check_requirements
+from .szz.dfszz.df_szz import DFSZZ
+from .szz.l_szz import LSZZ
+from .szz.ma_szz import MASZZ, DetectLineMoved
+from .szz.r_szz import RSZZ
+from .szz.ra_szz import RASZZ
+from .szz.pd_szz import PyDrillerSZZ
+from .szz.vszz.v_szz import VSZZ
+from .szz.common.issue_date import parse_issue_date
 from pathlib import Path
 from multiprocessing import Manager
 import concurrent.futures as cf
-from options import Options
+from .options import Options
 from traceback import format_exc
 
 def create_log_handler(worker_id: int):

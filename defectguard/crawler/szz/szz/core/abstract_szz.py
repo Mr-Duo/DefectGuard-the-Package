@@ -10,8 +10,8 @@ from typing import List, Set
 from git import Commit, Repo
 from pydriller import ModificationType, GitRepository as PyDrillerGitRepo
 
-from options import Options
-from szz.core.comment_parser import parse_comments
+from ...options import Options
+from .comment_parser import parse_comments
 
 
 class AbstractSZZ(ABC):

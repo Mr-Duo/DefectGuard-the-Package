@@ -1,7 +1,7 @@
 import argparse, os
-from Miner import Miner
-from Extractor import Extractor
-from szz.main import run as SZZ
+from .Miner import Miner
+from .Extractor import Extractor
+from .szz.main import run as SZZ
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 

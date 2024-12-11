@@ -1,4 +1,4 @@
-from utils.utils import *
+from .utils.utils import *
 
 class Dict(object):
     def __init__(self, lower=False):

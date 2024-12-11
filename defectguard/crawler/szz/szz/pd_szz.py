@@ -2,8 +2,8 @@ import logging as log
 from typing import List, Set
 from git import Commit
 from pydriller import GitRepository
-from szz.common.issue_date import filter_by_date
-from szz.core.abstract_szz import AbstractSZZ, ImpactedFile
+from .common.issue_date import filter_by_date
+from .core.abstract_szz import AbstractSZZ, ImpactedFile
 
 
 def match_files(file: str, impacted_files: List['ImpactedFile']) -> bool:

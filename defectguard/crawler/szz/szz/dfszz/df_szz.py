@@ -6,11 +6,11 @@ from typing import List, Dict, Set
 import networkx as nx
 from git import Commit
 
-from szz.core.abstract_szz import ImpactedFile, LineChangeType, DetectLineMoved
-from szz.dfszz.define_use_parser import DefUseParser
-from szz.ma_szz import MASZZ
-from szz.r_szz import RSZZ
-from szz.common.srcml_wrapper import SrcML
+from ..core.abstract_szz import ImpactedFile, LineChangeType, DetectLineMoved
+from .define_use_parser import DefUseParser
+from ..ma_szz import MASZZ
+from ..r_szz import RSZZ
+from ..common.srcml_wrapper import SrcML
 
 SUPPORTED_FILE_EXT = ['.c', '.h']
 

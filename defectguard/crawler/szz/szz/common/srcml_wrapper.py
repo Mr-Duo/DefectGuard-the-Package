@@ -6,7 +6,7 @@ import traceback
 from pathlib import Path
 from typing import List
 
-from options import Options
+from ...options import Options
 
 
 class SrcML:

@@ -4,7 +4,7 @@ import traceback
 import numpy as np
 from typing import Dict, List, Tuple, Set
 
-from utils.utils import save_json, load_json, DEFAULT_EXTRACTED_OUTPUT
+from ..utils.utils import save_json, load_json, DEFAULT_EXTRACTED_OUTPUT
 
 class Kamei14:
     def __init__(self, logger: logging.Logger):

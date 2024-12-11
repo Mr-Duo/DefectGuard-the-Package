@@ -4,7 +4,7 @@ import traceback
 import numpy as np
 from typing import Dict, List, Tuple, Set
 from tqdm import tqdm
-from utils.utils import save_json, load_json, append_jsonl, load_jsonl, create_console_log_handler
+from ..utils.utils import save_json, load_json, append_jsonl, load_jsonl, create_console_log_handler
 
 keywords_62 = [
     "do", "if", "asm", "for", "int", "new", "try", "auto", "bool", "case", "char", "else", "enum", "free", "goto", "long", 

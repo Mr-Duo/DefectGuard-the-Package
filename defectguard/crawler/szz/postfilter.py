@@ -4,7 +4,7 @@ import os
 import sys
 from typing import List
 import dateparser as dp
-from szz.common.issue_date import parse_issue_date
+from .szz.common.issue_date import parse_issue_date
 
 log.basicConfig(level=log.INFO, format='%(asctime)s :: %(funcName)s - %(levelname)s :: %(message)s')
 

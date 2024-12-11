@@ -2,8 +2,8 @@ import logging
 import traceback
 from typing import List, Set
 from git import Commit
-from szz.common.issue_date import filter_by_date
-from szz.core.abstract_szz import AbstractSZZ, ImpactedFile
+from .common.issue_date import filter_by_date
+from .core.abstract_szz import AbstractSZZ, ImpactedFile
 
 class BaseSZZ(AbstractSZZ):
     """
