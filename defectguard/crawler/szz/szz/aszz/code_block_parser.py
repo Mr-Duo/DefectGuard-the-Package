@@ -2,7 +2,7 @@ import logging as log
 import re
 from typing import List
 
-from szz.common.srcml_wrapper import SrcML
+from ..common.srcml_wrapper import SrcML
 
 
 class CodeBlockParser:
