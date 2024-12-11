@@ -2,7 +2,7 @@ import json
 import logging as log
 import os
 import sys
-from szz.l_szz import LSZZ
+from .szz.l_szz import LSZZ
 from typing import List
 
 log.basicConfig(level=log.INFO, format='%(asctime)s :: %(funcName)s - %(levelname)s :: %(message)s')
